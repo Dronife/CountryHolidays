@@ -31,6 +31,15 @@ services:
         networks:
             default:
                 ipv4_address: 172.11.11.10
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+          - 8888:80
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: root
+            PMA_PASSWORD: root
 
 networks:
     default:
