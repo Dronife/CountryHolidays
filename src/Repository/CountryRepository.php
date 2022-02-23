@@ -19,6 +19,10 @@ class CountryRepository extends ServiceEntityRepository
         parent::__construct($registry, Country::class);
     }
 
+    public function getCount(){
+        return $this->createQueryBuilder('a')->select('count(a.id)')->getQuery()->getSingleScalarResult();
+    }
+
     // /**
     //  * @return Country[] Returns an array of Country objects
     //  */

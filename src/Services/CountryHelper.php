@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Entity\Country;
-use App\Interfaces\CountryInterface;
+use App\Interfaces\CountryHelperInterface;
 use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class CountryHelper implements CountryInterface
+class CountryHelper implements CountryHelperInterface
 {
     private $repository;
     private $client;
