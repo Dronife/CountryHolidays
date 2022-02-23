@@ -6,6 +6,8 @@ use App\Interfaces\CountryHelperInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Annotations as OA;
+
 class CountryController extends AbstractController
 {
     private $countryHelper;
@@ -16,9 +18,13 @@ class CountryController extends AbstractController
     }
 
     /**
-     * @Route("/api/countries")
+     * @Route("/api/countries" , methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns all supported names of countries",
+     * )
      */
-    public function test(){
+    public function index(){
         return new JsonResponse($this->countryHelper->getCountries());
     }
     
