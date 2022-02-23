@@ -24,8 +24,9 @@ class CountryController extends AbstractController
      *     description="Returns all supported names of countries",
      * )
      */
-    public function index(){
-        return new JsonResponse($this->countryHelper->getCountries());
+    public function index(): JsonResponse
+    {
+        return new JsonResponse($this->countryHelper->getCountries(), 200);
     }
     
 }
