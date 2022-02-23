@@ -39,14 +39,15 @@ class CountryHelper implements CountryHelperInterface
             $response->toArray();
 
             array_map(function ($object) {
-                $this->addNew($object['fullName']);
+                $this->addNew($object['fullName'], $object['countryCode']);
             }, $response->toArray());
         }
     }
 
-    public function addNew(string $name){
+    public function addNew(string $name, string $countryCode){
         $country = new Country();
         $country->setName($name);
+        $country->setCountryCode($countryCode);
         $this->entityManager->persist($country);
         $this->entityManager->flush();
     }

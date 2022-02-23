@@ -22,6 +22,11 @@ class Country
      */
     private $name;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $country_code;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -35,6 +40,18 @@ class Country
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getCountryCode(): ?string
+    {
+        return $this->country_code;
+    }
+
+    public function setCountryCode(string $country_code): self
+    {
+        $this->country_code = $country_code;
 
         return $this;
     }
