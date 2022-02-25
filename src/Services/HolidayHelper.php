@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Entity\Country;
 use App\Entity\Holiday;
 use App\Interfaces\HolidayHelperInterface;
-use App\Model\Holiday\Holiday as HolidayModel;
+use App\Model\HolidayModel;
 use App\Repository\CountryRepository;
 use App\Repository\HolidayRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,7 +15,6 @@ class HolidayHelper implements HolidayHelperInterface
 {
 
 
-//    private  $URL = "https://kayaposoft.com/enrico/json/v2.0/?action=getHolidaysForMonth&month={$month}&year=:year&country=:country";
     private $entityManager;
     private $holidayRepository;
     private $countryRepository;
@@ -38,24 +37,25 @@ class HolidayHelper implements HolidayHelperInterface
 
     public function getHolidaysByYearAndCountry($year, $countryName)
     {
-        // $holidays = $this->repo->getHolidays($year, $countryName)
-        // if $holidays !== null: return $holidays
-        // $this->holidayService->getHolidays($year, $countryName)
-
-        //if(!$this->countryHasHolidays($year, $countryName))
-
         $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         if(count($country->getHolidays()) == 0)
-            $this->addHolidaysToDatabase($year, $country);
+            $this->addAndAssignHolidaysToDatabase($year, $country);
         return $country->getholidays();
     }
 
-    private function addHolidaysToDatabase($year, Country $country): void
+    private function addAndAssignHolidaysToDatabase($year, Country $country): void
     {
 
         $holidayModels = $this->converterHelper->getHolidayModels('GET', $this->getEndPoint($year, $country),'array<'.HolidayModel::class.'>');
             foreach($holidayModels as $holidayModel){
-                $this->addNew($holidayModel->getDefaultName(), $holidayModel->getHolidayType(), $holidayModel->getDateTime());
+
+                $holiday = $this->holidayRepository->findOneOrCreate([
+                    'name' => $holidayModel->getDefaultName(),
+                    'type' => $holidayModel->getHolidayType(),
+                    'date' => $holidayModel->getDateTime(),
+                ]);
+                $country->addHoliday($holiday);
+                $this->entityManager->flush();
             }
 
     }
@@ -65,26 +65,5 @@ class HolidayHelper implements HolidayHelperInterface
         return $this->baseApiUrl.$this->yearCall."&year=".$year."&country=".$country->getCountryCode()."&holidayType=public_holiday";
     }
 
-    public function addNew(string $name, string $type, \DateTimeInterface $date){
-//        if($this->holidayExists($name, $type, $date))
-        $holiday = $this->createOrFind($name, $type, $date);
-        $this->country->addHoliday($holiday);
-        $this->entityManager->flush();
-    }
-
-    private function createOrFind(string $name, string $type, \DateTimeInterface $date) : Holiday
-    {
-        return $this->holidayRepository->findOneBy(['name' => $name, 'type' => $type, 'date' => $date]) ?:
-            $this->insertHoliday($name, $type, $date);
-
-    }
-
-    private function insertHoliday(string $name, string $type, \DateTimeInterface $date):Holiday
-    {
-        $holiday  = new Holiday();
-        $holiday->setName($name)->setType($type)->setDate($date);
-        $this->entityManager->persist($holiday);
-        return $holiday;
-    }
 
 }

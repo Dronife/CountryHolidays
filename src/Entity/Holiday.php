@@ -6,6 +6,10 @@ use App\Repository\HolidayRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Exclude;
+
+
 
 /**
  * @ORM\Entity(repositoryClass=HolidayRepository::class)
@@ -21,6 +25,7 @@ class Holiday
 
     /**
      * @ORM\Column(type="date")
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $date;
 
@@ -36,6 +41,7 @@ class Holiday
 
     /**
      * @ORM\ManyToMany(targetEntity=Country::class, inversedBy="holidays")
+     * @Exclude()
      */
     private $country_id;
 

@@ -3,7 +3,7 @@
 namespace App\Controller\api;
 
 use App\Interfaces\HolidayHelperInterface;
-use App\Model\Holiday\Holiday;
+use App\Model\HolidayModel;
 use App\Services\ModelConverterHelper;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializerInterface;
@@ -30,21 +30,12 @@ class HolidayController extends AbstractFOSRestController
     }
 
     /**
-     * @Route("/api/holidays", methods={"get"})
+     * @Route("/api/holidays", methods={"post"})
      */
     public function holidays(Request $request): Response
     {
-//        return $this->handleView($this->view($this->holidayHelper->getHolidaysByYearAndCountry(2022, 'Lithuania'), 200));
-        return $this->handleView($this->view(
-            $this->converterHelper->getHolidayModels(
-                'GET',
-                'https://kayaposoft.com/enrico/json/v2.0/?action=getHolidaysForYear&year=2022&country=ltu&holidayType=public_holiday',
-            'array<'.Holiday::class.'>')
-            , 200));
-//        return new JsonResponse(
-//            $this->serializer->serialize($this->holidayHelper->getHolidaysByYearAndCountry(2022, 'Angola'),
-//                'json'),
-//            200, [], true);
+        return $this->handleView($this->view($this->holidayHelper->getHolidaysByYearAndCountry($request->get('year'), $request->get('country')), 200));
+
     }
 
 }

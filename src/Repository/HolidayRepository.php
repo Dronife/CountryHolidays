@@ -19,6 +19,23 @@ class HolidayRepository extends ServiceEntityRepository
         parent::__construct($registry, Holiday::class);
     }
 
+    public function findOneOrCreate(array $criteria) : Holiday
+    {
+        $entity = $this->findOneBy($criteria);
+
+        if(null === $entity)
+        {
+
+            $entity = new Holiday();
+            $entity->setName($criteria['name']);
+            $entity->setType($criteria['type']);
+            $entity->setDate($criteria['date']);
+            $this->_em->persist($entity);
+            $this->_em->flush();
+        }
+        return $entity;
+    }
+
     // /**
     //  * @return Holiday[] Returns an array of Holiday objects
     //  */
