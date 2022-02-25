@@ -17,9 +17,13 @@ class ModelConverterHelper
         $this->client = $client;
     }
 
-    public function getHolidayModels($method, $url, $class) : array
+    public function getEntityModel($method, $url, $class) : array
     {
         $response = $this->client->request($method, $url)->getContent();
         return $this->serializer->deserialize($response, $class, 'json');
+    }
+
+    public function getRequestModel(string $requestContent, $class){
+        return $this->serializer->deserialize($requestContent, $class, 'json');
     }
 }

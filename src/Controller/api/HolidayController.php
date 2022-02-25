@@ -4,6 +4,7 @@ namespace App\Controller\api;
 
 use App\Interfaces\HolidayHelperInterface;
 use App\Model\HolidayModel;
+use App\Model\HolidayYearRequest;
 use App\Services\ModelConverterHelper;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializerInterface;
@@ -34,8 +35,9 @@ class HolidayController extends AbstractFOSRestController
      */
     public function holidays(Request $request): Response
     {
+        $requestModel = $this->converterHelper->getRequestModel($request->getContent(), HolidayYearRequest::class);
+        dd($requestModel);
         return $this->handleView($this->view($this->holidayHelper->getHolidaysByYearAndCountry($request->get('year'), $request->get('country')), 200));
-
     }
 
 }

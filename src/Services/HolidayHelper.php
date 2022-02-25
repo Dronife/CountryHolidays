@@ -46,7 +46,7 @@ class HolidayHelper implements HolidayHelperInterface
     private function addAndAssignHolidaysToDatabase($year, Country $country): void
     {
 
-        $holidayModels = $this->converterHelper->getHolidayModels('GET', $this->getEndPoint($year, $country),'array<'.HolidayModel::class.'>');
+        $holidayModels = $this->converterHelper->getEntityModel('GET', $this->getEndPoint($year, $country),'array<'.HolidayModel::class.'>');
             foreach($holidayModels as $holidayModel){
 
                 $holiday = $this->holidayRepository->findOneOrCreate([
