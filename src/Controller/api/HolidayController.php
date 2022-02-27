@@ -2,12 +2,14 @@
 
 namespace App\Controller\api;
 
+use App\Form\Type\HolidayRequestType;
 use App\Interfaces\HolidayHelperInterface;
 use App\Model\HolidayModel;
-use App\Model\HolidayYearRequest;
+use App\Model\HolidayRequestForYearModel;
 use App\Services\ModelConverterHelper;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,9 +37,18 @@ class HolidayController extends AbstractFOSRestController
      */
     public function holidays(Request $request): Response
     {
-        $requestModel = $this->converterHelper->getRequestModel($request->getContent(), HolidayYearRequest::class);
-        dd($requestModel);
-        return $this->handleView($this->view($this->holidayHelper->getHolidaysByYearAndCountry($request->get('year'), $request->get('country')), 200));
+        $holidayRequestModel = new HolidayRequestForYearModel();
+        $form = $this->createForm(HolidayRequestType::class, $holidayRequestModel);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            return $this->handleView(
+                $this->view(
+                    $this->holidayHelper->getHolidaysByYearAndCountry(
+                        $holidayRequestModel->getYear(), $holidayRequestModel->getCountry()),
+                    200)
+            );
+        }
+        return $this->handleView($this->view([$form->getErrors()]));
     }
 
 }

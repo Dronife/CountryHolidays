@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-class HolidayYearRequest
+class HolidayRequestForYearModel
 {
     private int $year;
     private string $country;
