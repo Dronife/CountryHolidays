@@ -8,6 +8,7 @@ use App\Interfaces\HolidayHelperInterface;
 use App\Model\HolidayModel;
 use App\Repository\CountryRepository;
 use App\Repository\HolidayRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -35,7 +36,7 @@ class HolidayHelper implements HolidayHelperInterface
         $this->converterHelper = $converterHelper;
     }
 
-    public function getHolidaysByYearAndCountry($year, $countryName) : array
+    public function getHolidaysByYearAndCountry($year, $countryName): Collection
     {
         $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         if(count($country->getHolidays()) == 0)
