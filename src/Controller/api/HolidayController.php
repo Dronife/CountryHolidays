@@ -51,4 +51,13 @@ class HolidayController extends AbstractFOSRestController
         return $this->handleView($this->view([$form->getErrors()]));
     }
 
+    /**
+     * @Route("/api/holidays/checkDate", methods={"post"})
+     */
+    public function checkDate(Request $request):Response
+    {
+        return $this->handleView($this->view($request->request->all()));
+
+    }
+
 }

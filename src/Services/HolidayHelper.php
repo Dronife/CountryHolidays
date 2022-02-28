@@ -35,7 +35,7 @@ class HolidayHelper implements HolidayHelperInterface
         $this->converterHelper = $converterHelper;
     }
 
-    public function getHolidaysByYearAndCountry($year, $countryName)
+    public function getHolidaysByYearAndCountry($year, $countryName) : array
     {
         $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         if(count($country->getHolidays()) == 0)
