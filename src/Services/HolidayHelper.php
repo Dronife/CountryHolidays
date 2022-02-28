@@ -66,5 +66,11 @@ class HolidayHelper implements HolidayHelperInterface
         return $this->baseApiUrl.$this->yearCall."&year=".$year."&country=".$country->getCountryCode()."&holidayType=public_holiday";
     }
 
+    public function getDateHolidayType($year, $countryName)
+    {
+
+    }
+
+
 
 }

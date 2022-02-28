@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\LessThan;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class HolidayRequestType extends AbstractType
+class HolidayRequestForYearType extends AbstractType
 {
     /**
      * {@inheritdoc}

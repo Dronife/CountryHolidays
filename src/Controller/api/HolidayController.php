@@ -2,9 +2,11 @@
 
 namespace App\Controller\api;
 
-use App\Form\Type\HolidayRequestType;
+use App\Form\Type\HolidayRequestCheckDateType;
+use App\Form\Type\HolidayRequestForYearType;
 use App\Interfaces\HolidayHelperInterface;
 use App\Model\HolidayModel;
+use App\Model\HolidayRequestCheckDate;
 use App\Model\HolidayRequestForYearModel;
 use App\Services\ModelConverterHelper;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -38,7 +40,7 @@ class HolidayController extends AbstractFOSRestController
     public function holidays(Request $request): Response
     {
         $holidayRequestModel = new HolidayRequestForYearModel();
-        $form = $this->createForm(HolidayRequestType::class, $holidayRequestModel);
+        $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->handleView(
@@ -54,10 +56,15 @@ class HolidayController extends AbstractFOSRestController
     /**
      * @Route("/api/holidays/checkDate", methods={"post"})
      */
-    public function checkDate(Request $request):Response
+    public function checkDate(Request $request): Response
     {
-        return $this->handleView($this->view($request->request->all()));
-
+        $holidayCheckDateModel = new HolidayRequestCheckDate();
+        $form = $this->createForm(HolidayRequestCheckDateType::class, $holidayCheckDateModel);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            return new JsonResponse(['Success']);
+        }
+        return $this->handleView($this->view([$form->getErrors()]));
     }
 
 }
