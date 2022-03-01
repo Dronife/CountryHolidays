@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Entity\Country;
 use App\Entity\Holiday;
-use App\Interfaces\HolidayHelperInterface;
+use App\Interfaces\HolidayApiClientInterface;
 use App\Model\DayPublicHoliday;
 use App\Model\HolidayModel;
 use App\Repository\CountryRepository;
@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class HolidayHelper implements HolidayHelperInterface
+class HolidayApiClientService implements HolidayApiClientInterface
 {
 
 
@@ -47,70 +47,60 @@ class HolidayHelper implements HolidayHelperInterface
 
     private function addAndAssignHolidaysToDatabase($year, Country $country): void
     {
-
-        $holidayModels = $this->converterHelper->getModel('GET', $this->getEndPoint($year, $country), 'array<' . HolidayModel::class . '>');
+        /** @var HolidayModel[] $holidayModels */
+        $holidayModels = $this->converterHelper->getModel('GET', $this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
         foreach ($holidayModels as $holidayModel) {
-
-            $holiday = $this->holidayRepository->findOneOrCreate([
-                'name' => $holidayModel->getDefaultName(),
-                'type' => $holidayModel->getHolidayType(),
-                'date' => $holidayModel->getDateTime(),
-            ]);
+            // factory create holiday ($holidayModel)
+            $holiday = $this->holidayRepository->findOneOrCreate($holiday);
             $country->addHoliday($holiday);
             $this->entityManager->flush();
         }
-
     }
 
-    private function getEndPoint($year, $country): string
+    private function getHolidayForYearUrl($year, $country): string
     {
         return $this->baseApiUrl . "getHolidaysForYear&year=" . $year . "&country=" . $country->getCountryCode() . "&holidayType=public_holiday";
     }
 
-    private function getEndPointForDayCheck(Country $country, string $date): string
+    private function getUrlForDayCheck(Country $country, string $date): string
     {
         return $this->baseApiUrl . 'isPublicHoliday' . "&date=$date&country=" . $country->getCountryCode();
     }
 
-    private function getEndPointForSpecificHolidayDate(Country $country, string $date)
+    private function getUrlForSpecificHolidayDate(Country $country, string $date)
     {
         return $this->baseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode();
-
     }
 
-    public function getHolidayEndPoint()
-    {
-//        return $this->baseApiUrl
-    }
-
-    public function getDateHolidayType($date, $countryName) : array
+    public function getDateHolidayType(string $date, string $countryName) : string
     {
         $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         $holiday = $country->getHolidayByDate($date);
 
-        if ($holiday)
-            return ['status' => 'holiday'];
+        if ($holiday) {
+            return 'holiday';
+        }
 
-        if (!$this->converterHelper
-            ->getModel('GET', $this->getEndPointForDayCheck($country, $date), DayPublicHoliday::class)
-            ->isPublicHoliday()
-        ) {
+        if (!$this->isSelectedDateIsPublicHoliday($country, $date)) {
             if (Carbon::parse($date)->isWeekend())
-                return ['status' => 'free day'];
-            return ['status' => 'workday'];
+                return 'free day';
+            return 'workday';
         }
 
         $holidayModel = $this->converterHelper
-            ->getModel('GET', $this->getEndPointForSpecificHolidayDate($country, $date), 'array<'.HolidayModel::class.'>')[0];
+            ->getModel('GET', $this->getUrlForSpecificHolidayDate($country, $date), 'array<'.HolidayModel::class.'>')[0];
 
-        $holiday = $this->holidayRepository->create([
-            'name' => $holidayModel->getDefaultName(),
-            'type' => $holidayModel->getHolidayType(),
-            'date' => $holidayModel->getDateTime(),
-        ]);
+        $holiday = $this->holidayRepository->create($holidayModel);
         $country->addHoliday($holiday);
         $this->entityManager->flush();
-        return ['status' => 'holiday'];
+        return 'holiday';
+    }
+
+    private function isSelectedDateIsPublicHoliday(Country $country, string $date) : bool
+    {
+        return $this->converterHelper
+            ->getModel('GET', $this->getUrlForDayCheck($country, $date), DayPublicHoliday::class)
+            ->isPublicHoliday();
     }
 
 

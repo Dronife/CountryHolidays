@@ -4,7 +4,7 @@ namespace App\Controller\api;
 
 use App\Form\Type\HolidayRequestCheckDateType;
 use App\Form\Type\HolidayRequestForYearType;
-use App\Interfaces\HolidayHelperInterface;
+use App\Interfaces\HolidayApiClientInterface;
 use App\Model\HolidayModel;
 use App\Model\HolidayRequestCheckDate;
 use App\Model\HolidayRequestForYearModel;
@@ -19,17 +19,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class HolidayController extends AbstractFOSRestController
 {
 
-    private $holidayHelper;
+    private $holidayApiClientService;
     private $serializer;
     /**
      * @var ModelConverterHelper
      */
     private $converterHelper;
 
-    public function __construct(HolidayHelperInterface $holidayHelper, SerializerInterface $serializer, ModelConverterHelper $converterHelper)
+    public function __construct(HolidayApiClientInterface $holidayApiClientService, SerializerInterface $serializer, ModelConverterHelper $converterHelper)
     {
 
-        $this->holidayHelper = $holidayHelper;
+        $this->holidayApiClientService = $holidayApiClientService;
         $this->serializer = $serializer;
         $this->converterHelper = $converterHelper;
     }
@@ -45,7 +45,7 @@ class HolidayController extends AbstractFOSRestController
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->handleView(
                 $this->view(
-                    $this->holidayHelper->getHolidaysByYearAndCountry(
+                    $this->holidayApiClientService->getHolidaysByYearAndCountry(
                         $holidayRequestModel->getYear(), $holidayRequestModel->getCountry()),
                     200)
             );
@@ -64,7 +64,7 @@ class HolidayController extends AbstractFOSRestController
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->handleView(
                 $this->view(
-                    $this->holidayHelper->getDateHolidayType(
+                    $this->holidayApiClientService->getDateHolidayType(
                         $holidayCheckDateModel->getDateByFormat('d-m-Y'), $holidayCheckDateModel->getCountry()),
                     200)
             );

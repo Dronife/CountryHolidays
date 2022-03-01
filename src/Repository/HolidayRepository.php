@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Holiday;
+use App\Model\HolidayModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,26 +20,26 @@ class HolidayRepository extends ServiceEntityRepository
         parent::__construct($registry, Holiday::class);
     }
 
-    public function findOneOrCreate(array $criteria) : Holiday
+    public function findOneOrCreate(Holiday $holiday) : Holiday
     {
-        $entity = $this->findOneBy($criteria);
+        $entity = $this->findOneBy([
+            'name' => $holiday->getName(),
+            'type' => $holiday->getType(),
+            'date' => $holiday->getDate(),
+        ]);
 
-        if(null === $entity)
+        if($entity === null)
         {
-            $entity = $this->create($criteria);
+            $entity = $this->create($holiday);
         }
         return $entity;
     }
 
-    public function create(array $criteria) : Holiday
+    public function create(Holiday $holiday) : Holiday
     {
-        $entity = new Holiday();
-        $entity->setName($criteria['name']);
-        $entity->setType($criteria['type']);
-        $entity->setDate($criteria['date']);
-        $this->_em->persist($entity);
+        $this->_em->persist($holiday);
         $this->_em->flush();
-        return $entity;
+        return $holiday;
     }
 
     // /**

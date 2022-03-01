@@ -43,7 +43,7 @@ class Holiday
      * @ORM\ManyToMany(targetEntity=Country::class, inversedBy="holidays")
      * @Exclude()
      */
-    private $country_id;
+    private $country_id; // TODO: change to countries
 
     public function __construct()
     {
