@@ -83,7 +83,7 @@ class HolidayHelper implements HolidayHelperInterface
 //        return $this->baseApiUrl
     }
 
-    public function getDateHolidayType($date, $countryName)
+    public function getDateHolidayType($date, $countryName) : array
     {
         $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         $holiday = $country->getHolidayByDate($date);
