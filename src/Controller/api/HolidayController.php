@@ -62,7 +62,13 @@ class HolidayController extends AbstractFOSRestController
         $form = $this->createForm(HolidayRequestCheckDateType::class, $holidayCheckDateModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            return new JsonResponse(['Success']);
+            return $this->handleView(
+                $this->view(
+                    $this->holidayHelper->getDateHolidayType(
+                        $holidayCheckDateModel->getDateByFormat('d-m-Y'), $holidayCheckDateModel->getCountry()),
+                    200)
+            );
+//            return new JsonResponse([$holidayCheckDateModel->getDateByFormat('d-m-Y')]);
         }
         return $this->handleView($this->view([$form->getErrors()]));
     }

@@ -17,7 +17,13 @@ class ModelConverterHelper
         $this->client = $client;
     }
 
-    public function getEntityModel($method, $url, $class) : array
+//    public function getModelArray($method, $url, $class) : array
+//    {
+//        $response = $this->client->request($method, $url)->getContent();
+//        return $this->serializer->deserialize($response, 'array<'.$class.'>', 'json');
+//    }
+
+    public function getModel($method, $url, $class)
     {
         $response = $this->client->request($method, $url)->getContent();
         return $this->serializer->deserialize($response, $class, 'json');

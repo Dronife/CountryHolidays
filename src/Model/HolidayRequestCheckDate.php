@@ -8,7 +8,7 @@ use DateTimeInterface;
 class HolidayRequestCheckDate
 {
 
-    private string $date;
+    private DateTimeInterface $date;
     private string $country;
 
     /**
@@ -32,7 +32,7 @@ class HolidayRequestCheckDate
      */
     public function getDate(): DateTimeInterface
     {
-        return Carbon::parse($this->date);
+        return $this->date;
     }
 
     /**
@@ -40,7 +40,12 @@ class HolidayRequestCheckDate
      */
     public function setDate(DateTimeInterface $date): void
     {
-        $this->date = $date->format('yyyy-MM-dd');
+        $this->date = $date;
+    }
+
+    public function getDateByFormat($format):string
+    {
+        return $this->date->format($format);
     }
 
 

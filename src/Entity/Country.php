@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\CountryRepository;
+use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -93,5 +95,13 @@ class Country
         }
 
         return $this;
+    }
+
+    public function getHolidayByDate(string $date)
+    {
+        $criteria = Criteria::create()
+            ->andWhere(Criteria::expr()->eq('date',Carbon::parse($date)));
+        return $this->holidays->matching($criteria)->first();
+
     }
 }

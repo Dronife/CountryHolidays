@@ -25,14 +25,19 @@ class HolidayRepository extends ServiceEntityRepository
 
         if(null === $entity)
         {
-
-            $entity = new Holiday();
-            $entity->setName($criteria['name']);
-            $entity->setType($criteria['type']);
-            $entity->setDate($criteria['date']);
-            $this->_em->persist($entity);
-            $this->_em->flush();
+            $entity = $this->create($criteria);
         }
+        return $entity;
+    }
+
+    public function create(array $criteria) : Holiday
+    {
+        $entity = new Holiday();
+        $entity->setName($criteria['name']);
+        $entity->setType($criteria['type']);
+        $entity->setDate($criteria['date']);
+        $this->_em->persist($entity);
+        $this->_em->flush();
         return $entity;
     }
 

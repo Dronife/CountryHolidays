@@ -18,7 +18,7 @@ class HolidayRequestCheckDateType extends AbstractType
         $builder->add('date', DateType::class, [
             'widget' => 'single_text',
             'input_format' => 'string',
-            'format' => 'yyyy-MM-dd',
+            'format' => "yyyy-MM-dd",
             'required'=> true,
             'html5' => false,
             'label' => false,

@@ -23,6 +23,8 @@ class CountryRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')->select('count(a.id)')->getQuery()->getSingleScalarResult();
     }
 
+
+
     // /**
     //  * @return Country[] Returns an array of Country objects
     //  */
