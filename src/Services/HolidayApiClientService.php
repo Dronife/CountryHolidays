@@ -23,11 +23,13 @@ class HolidayApiClientService implements HolidayApiClientInterface
     private $countryRepository;
     private $baseApiUrl;
     private $client;
+    private $holidayFactoryService;
     private ModelConverterHelper $converterHelper;
 
     public function __construct(HolidayRepository      $holidayRepository, CountryRepository $countryRepository,
                                 EntityManagerInterface $entityManager, string $baseApiUrl,
-                                HttpClientInterface    $client, ModelConverterHelper $converterHelper)
+                                HttpClientInterface    $client, ModelConverterHelper $converterHelper,
+                                HolidayFactoryService $holidayFactoryService)
     {
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
@@ -35,6 +37,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->baseApiUrl = $baseApiUrl;
         $this->client = $client;
         $this->converterHelper = $converterHelper;
+        $this->holidayFactoryService = $holidayFactoryService;
     }
 
     public function getHolidaysByYearAndCountry($year, $countryName): Collection
@@ -50,8 +53,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
         /** @var HolidayModel[] $holidayModels */
         $holidayModels = $this->converterHelper->getModel('GET', $this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
         foreach ($holidayModels as $holidayModel) {
-            // factory create holiday ($holidayModel)
-            $holiday = $this->holidayRepository->findOneOrCreate($holiday);
+            $holidayEntity = $this->holidayFactoryService->create($holidayModel);
+            $holiday = $this->holidayRepository->findOneOrCreate($holidayEntity);
             $country->addHoliday($holiday);
             $this->entityManager->flush();
         }
