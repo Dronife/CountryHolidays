@@ -3,7 +3,10 @@
 namespace App\Form\Type;
 
 
+use App\Entity\Country;
 use App\Model\HolidayRequestForYearModel;
+use App\Services\Transformer\CountryTransformer;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -16,6 +19,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class HolidayRequestForYearType extends AbstractType
 {
+    private CountryTransformer $countryTransformer;
+
+    public function __construct(CountryTransformer $countryTransformer){
+
+        $this->countryTransformer = $countryTransformer;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -24,7 +34,7 @@ class HolidayRequestForYearType extends AbstractType
         $builder
             ->add('country', TextType::class,
                 [
-                    'label' => false,
+//                    'class' => Country::class,
                     'required' => true,
                     'constraints' => [
                         new NotBlank(),
@@ -40,6 +50,9 @@ class HolidayRequestForYearType extends AbstractType
                         new LessThan(3000),
                     ]
                 ]);
+
+        $builder->get('country')
+            ->addModelTransformer($this->countryTransformer);
     }
     /**
      * {@inheritdoc}

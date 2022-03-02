@@ -25,15 +25,16 @@ class HolidayApiClientService implements HolidayApiClientInterface
     private HttpClientInterface $client;
     private HolidayFactoryService $holidayFactoryService;
     private ModelConverterHelper $converterHelper;
-    private CONST TYPE_HOLIDAY = 'holiday';
-    private CONST TYPE_FREE_DAY = 'free day';
-    private CONST TYPE_WORKDAY = 'workday';
+    private const TYPE_HOLIDAY = 'holiday';
+    private const TYPE_FREE_DAY = 'free day';
+    private const TYPE_WORKDAY = 'workday';
+    private const DEFAULT_DATE_FORMAT = 'Y-m-d';
 
 
     public function __construct(HolidayRepository      $holidayRepository, CountryRepository $countryRepository,
                                 EntityManagerInterface $entityManager, string $baseApiUrl,
                                 HttpClientInterface    $client, ModelConverterHelper $converterHelper,
-                                HolidayFactoryService $holidayFactoryService)
+                                HolidayFactoryService  $holidayFactoryService)
     {
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
@@ -44,15 +45,14 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->holidayFactoryService = $holidayFactoryService;
     }
 
-    public function getHolidaysByYearAndCountry($year, $countryName): Collection
+    public function getHolidaysByYearAndCountry($year, Country $country): Collection
     {
-        $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         if (count($country->getHolidays()) == 0)
-            $this->addAndAssignHolidaysToDatabase($year, $country);
+            $this->addHolidaysToCountry($year, $country);
         return $country->getholidays();
     }
 
-    private function addAndAssignHolidaysToDatabase($year, Country $country): void
+    private function addHolidaysToCountry($year, Country $country): void
     {
         /** @var HolidayModel[] $holidayModels */
         $holidayModels = $this->converterHelper->getModel('GET', $this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
@@ -74,7 +74,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         return $this->baseApiUrl . 'isPublicHoliday' . "&date=$date&country=" . $country->getCountryCode();
     }
 
-    private function getUrlForSpecificHolidayDate(Country $country, string $date) : string
+    private function getUrlForSpecificHolidayDate(Country $country, string $date): string
     {
         return $this->baseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode();
     }
@@ -94,7 +94,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         }
 
         $holidayModel = $this->converterHelper
-            ->getModel('GET', $this->getUrlForSpecificHolidayDate($country, $date), 'array<'.HolidayModel::class.'>')[0];
+            ->getModel('GET', $this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
 
         $holidayEntity = $this->holidayFactoryService->create($holidayModel);
         $holiday = $this->holidayRepository->create($holidayEntity);
@@ -103,11 +103,86 @@ class HolidayApiClientService implements HolidayApiClientInterface
         return self::TYPE_HOLIDAY;
     }
 
-    private function isSelectedDateIsPublicHoliday(Country $country, string $date) : bool
+    private function isSelectedDateIsPublicHoliday(Country $country, string $date): bool
     {
         return $this->converterHelper
             ->getModel('GET', $this->getUrlForDayCheck($country, $date), DayPublicHoliday::class)
             ->isPublicHoliday();
+    }
+
+    public function getCountOfFreeDaysAndHolidays(string $year, Country $country)
+    {
+//        return $this->holidayRepository->getHolidaysByYearAndCountryName($year, $countryName);
+//        $country = $this->countryRepository->findOneBy(['name' => $countryName]);
+        $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
+        if (count($holidays) == 0)
+            $this->addHolidaysToCountry($year, $country);
+        return $this->getCountedFreeDays($holidays);
+        // add holidays to country then
+
+    }
+
+    /**
+     * @param Holiday[] $holidays
+//     * @return int
+     */
+    private function getCountedFreeDays(array $holidays) : array
+    {
+        $maxFreeDays = 0;
+        $count = 0;
+        $logger = [];
+        $streakStarterDate = null;
+        $streakStarterFound = false;
+        for ($holidayIndex = 1; $holidayIndex < count($holidays); $holidayIndex++) {
+            $date0 = Carbon::parse($holidays[$holidayIndex -1 ]->getDate());
+            $date1 = Carbon::parse($holidays[$holidayIndex]->getDate());
+
+            $dayDifference = $date0->diffInDays($date1);
+            $logger[] = ["date0: ".$date0->format(self::DEFAULT_DATE_FORMAT). " date1: ".$date1->format(self::DEFAULT_DATE_FORMAT)." diff: ".$dayDifference];
+            if ($maxFreeDays < $count) {
+                $maxFreeDays = $count;
+            }
+            
+            if ($dayDifference == 1) {
+                $count++;
+            }
+
+            if (($dayDifference != 1 && $count > 0) || ($count > 0 && ($holidayIndex == count($holidays) - 1))) {
+                $count++;
+                $logger[]=['    Day diff no more; Count: '.$count];
+                for ($weekday = 0; $weekday < 2; $weekday++) {
+                    $logger[] = ['      starting from day to check weekend: '.$date0->format(self::DEFAULT_DATE_FORMAT)];
+                    if ($date0->addDay()->isWeekend()) {
+                        $logger[] = ['          weekend forward!'];
+                        $count++;
+                    }
+                    $logger[] = ['      starting from day to check weekend backwards: '.$streakStarterDate->format(self::DEFAULT_DATE_FORMAT)];
+                    if ($streakStarterFound && $streakStarterDate->subDay(1)->isWeekend()) {
+                        $logger[] = ['          weekend backwards!'];
+                        $count++;
+                    }
+
+                }
+                $logger[]=['    Checking if there are weekends. Count: '.$count];
+                if ($maxFreeDays < $count) {
+                    $maxFreeDays = $count;
+                }
+                $logger[]=['    MaxFreeDays: '.$maxFreeDays];
+                $count = 0;
+                $streakStarterFound = false;
+            }
+
+
+
+            if($count > 0 && !$streakStarterFound){
+                $streakStarterDate = $date0;
+                $logger[] = ["  streak starter: ".$streakStarterDate->format(self::DEFAULT_DATE_FORMAT)];
+                $streakStarterFound = true;
+            }
+
+
+        }
+        return $logger;
     }
 
 

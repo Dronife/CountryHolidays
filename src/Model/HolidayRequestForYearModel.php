@@ -2,10 +2,12 @@
 
 namespace App\Model;
 
+use App\Entity\Country;
+
 class HolidayRequestForYearModel
 {
     private int $year;
-    private string $country;
+    private Country $country;
 
     /**
      * @return int
@@ -24,18 +26,20 @@ class HolidayRequestForYearModel
     }
 
     /**
-     * @return string
+     * @return Country
      */
-    public function getCountry(): string
+    public function getCountry(): Country
     {
         return $this->country;
     }
 
     /**
-     * @param string $country
+     * @param Country $country
      */
-    public function setCountry(string $country): void
+    public function setCountry(Country $country): void
     {
         $this->country = $country;
     }
+
+
 }

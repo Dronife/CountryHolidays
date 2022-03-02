@@ -20,7 +20,10 @@ class CountryRepository extends ServiceEntityRepository
     }
 
     public function getCount(){
-        return $this->createQueryBuilder('a')->select('count(a.id)')->getQuery()->getSingleScalarResult();
+        return $this->createQueryBuilder('a')
+            ->select('count(a.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
 

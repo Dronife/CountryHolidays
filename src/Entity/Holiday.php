@@ -32,18 +32,18 @@ class Holiday
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $type;
+    private string $type;
 
     /**
      * @ORM\ManyToMany(targetEntity=Country::class, inversedBy="holidays")
      * @Exclude()
      */
-    private $countries; // TODO: change to countries
+    private Collection $countries;
 
     public function __construct()
     {

@@ -73,4 +73,25 @@ class HolidayController extends AbstractFOSRestController
         return $this->handleView($this->view([$form->getErrors()]));
     }
 
+    /**
+     * @Route("/api/holidays/getCount", methods={"post"})
+     */
+    public function getCount(Request $request):Response
+    {
+        $holidayRequestModel = new HolidayRequestForYearModel();
+        $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+//            return $this->handleView(
+//                $this->view($holidayRequestModel->getCountry())
+//            );
+            return $this->handleView(
+                $this->view(
+                    $this->holidayApiClientService->getCountOfFreeDaysAndHolidays(
+                        $holidayRequestModel->getYear(), $holidayRequestModel->getCountry()),
+                    200)
+            );
+        }
+        return $this->handleView($this->view([$form->getErrors()]));
+    }
 }

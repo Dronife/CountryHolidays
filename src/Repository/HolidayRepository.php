@@ -42,6 +42,18 @@ class HolidayRepository extends ServiceEntityRepository
         return $holiday;
     }
 
+    public function getHolidaysByYearAndCountryName($year, $countryName){
+        return $this->createQueryBuilder('h')
+            ->leftJoin('h.countries', 'c')
+            ->andWhere('YEAR(h.date) = :year')
+            ->andWhere('c.name = :countryName')
+            ->setParameters(['year' => $year, 'countryName' => $countryName])
+            ->getQuery()
+            ->getResult();
+    }
+
+
+
     // /**
     //  * @return Holiday[] Returns an array of Holiday objects
     //  */
