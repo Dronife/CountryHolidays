@@ -18,13 +18,17 @@ class HolidayApiClientService implements HolidayApiClientInterface
 {
 
 
-    private $entityManager;
-    private $holidayRepository;
-    private $countryRepository;
-    private $baseApiUrl;
-    private $client;
-    private $holidayFactoryService;
+    private EntityManagerInterface $entityManager;
+    private HolidayRepository $holidayRepository;
+    private CountryRepository $countryRepository;
+    private string $baseApiUrl;
+    private HttpClientInterface $client;
+    private HolidayFactoryService $holidayFactoryService;
     private ModelConverterHelper $converterHelper;
+    private CONST TYPE_HOLIDAY = 'holiday';
+    private CONST TYPE_FREE_DAY = 'free day';
+    private CONST TYPE_WORKDAY = 'workday';
+
 
     public function __construct(HolidayRepository      $holidayRepository, CountryRepository $countryRepository,
                                 EntityManagerInterface $entityManager, string $baseApiUrl,
@@ -80,13 +84,13 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         $holiday = $country->getHolidayByDate($date);
         if ($holiday) {
-            return 'holiday';
+            return self::TYPE_HOLIDAY;
         }
 
         if (!$this->isSelectedDateIsPublicHoliday($country, $date)) {
             if (Carbon::parse($date)->isWeekend())
-                return 'free day';
-            return 'workday';
+                return self::TYPE_FREE_DAY;
+            return self::TYPE_WORKDAY;
         }
 
         $holidayModel = $this->converterHelper
@@ -96,7 +100,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $holiday = $this->holidayRepository->create($holidayEntity);
         $country->addHoliday($holiday);
         $this->entityManager->flush();
-        return 'holiday';
+        return self::TYPE_HOLIDAY;
     }
 
     private function isSelectedDateIsPublicHoliday(Country $country, string $date) : bool

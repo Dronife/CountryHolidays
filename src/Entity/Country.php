@@ -32,7 +32,7 @@ class Country
     private $country_code;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Holiday::class, mappedBy="country_id")
+     * @ORM\ManyToMany(targetEntity=Holiday::class, mappedBy="countries")
      */
     private $holidays;
 
