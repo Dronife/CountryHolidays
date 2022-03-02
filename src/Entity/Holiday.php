@@ -43,11 +43,11 @@ class Holiday
      * @ORM\ManyToMany(targetEntity=Country::class, inversedBy="holidays")
      * @Exclude()
      */
-    private $country_id; // TODO: change to countries
+    private $countries; // TODO: change to countries
 
     public function __construct()
     {
-        $this->country_id = new ArrayCollection();
+        $this->countries = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -94,15 +94,15 @@ class Holiday
     /**
      * @return Collection<int, Country>
      */
-    public function getCountryId(): Collection
+    public function getCountries(): Collection
     {
-        return $this->country_id;
+        return $this->countries;
     }
 
     public function addCountryId(Country $countryId): self
     {
-        if (!$this->country_id->contains($countryId)) {
-            $this->country_id[] = $countryId;
+        if (!$this->countries->contains($countryId)) {
+            $this->countries[] = $countryId;
         }
 
         return $this;
@@ -110,7 +110,7 @@ class Holiday
 
     public function removeCountryId(Country $countryId): self
     {
-        $this->country_id->removeElement($countryId);
+        $this->countries->removeElement($countryId);
 
         return $this;
     }
