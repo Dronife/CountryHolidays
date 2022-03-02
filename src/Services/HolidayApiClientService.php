@@ -124,65 +124,52 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     /**
      * @param Holiday[] $holidays
-//     * @return int
+     * @return int
      */
-    private function getCountedFreeDays(array $holidays) : array
+    private function getCountedFreeDays(array $holidays): int
     {
         $maxFreeDays = 0;
         $count = 0;
-        $logger = [];
         $streakStarterDate = null;
         $streakStarterFound = false;
         for ($holidayIndex = 1; $holidayIndex < count($holidays); $holidayIndex++) {
-            $date0 = Carbon::parse($holidays[$holidayIndex -1 ]->getDate());
+            $date0 = Carbon::parse($holidays[$holidayIndex - 1]->getDate());
             $date1 = Carbon::parse($holidays[$holidayIndex]->getDate());
 
             $dayDifference = $date0->diffInDays($date1);
-            $logger[] = ["date0: ".$date0->format(self::DEFAULT_DATE_FORMAT). " date1: ".$date1->format(self::DEFAULT_DATE_FORMAT)." diff: ".$dayDifference];
             if ($maxFreeDays < $count) {
                 $maxFreeDays = $count;
             }
-            
+
             if ($dayDifference == 1) {
                 $count++;
             }
 
             if (($dayDifference != 1 && $count > 0) || ($count > 0 && ($holidayIndex == count($holidays) - 1))) {
                 $count++;
-                $logger[]=['    Day diff no more; Count: '.$count];
                 for ($weekday = 0; $weekday < 2; $weekday++) {
-                    $logger[] = ['      starting from day to check weekend: '.$date0->format(self::DEFAULT_DATE_FORMAT)];
                     if ($date0->addDay()->isWeekend()) {
-                        $logger[] = ['          weekend forward!'];
                         $count++;
                     }
-                    $logger[] = ['      starting from day to check weekend backwards: '.$streakStarterDate->format(self::DEFAULT_DATE_FORMAT)];
                     if ($streakStarterFound && $streakStarterDate->subDay(1)->isWeekend()) {
-                        $logger[] = ['          weekend backwards!'];
                         $count++;
                     }
 
                 }
-                $logger[]=['    Checking if there are weekends. Count: '.$count];
                 if ($maxFreeDays < $count) {
                     $maxFreeDays = $count;
                 }
-                $logger[]=['    MaxFreeDays: '.$maxFreeDays];
                 $count = 0;
                 $streakStarterFound = false;
             }
 
-
-
-            if($count > 0 && !$streakStarterFound){
+            if ($count > 0 && !$streakStarterFound) {
                 $streakStarterDate = $date0;
-                $logger[] = ["  streak starter: ".$streakStarterDate->format(self::DEFAULT_DATE_FORMAT)];
                 $streakStarterFound = true;
             }
 
-
         }
-        return $logger;
+        return $maxFreeDays;
     }
 
 
