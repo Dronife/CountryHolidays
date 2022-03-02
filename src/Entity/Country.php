@@ -97,11 +97,11 @@ class Country
         return $this;
     }
 
-    public function getHolidayByDate(string $date): Holiday
+    public function getHolidayByDate(string $date) : ?Holiday
     {
         $criteria = Criteria::create()
             ->andWhere(Criteria::expr()->eq('date',Carbon::parse($date)));
-        return $this->holidays->matching($criteria)->first();
+        return $this->holidays->matching($criteria)->first() ?: null;
 
     }
 }

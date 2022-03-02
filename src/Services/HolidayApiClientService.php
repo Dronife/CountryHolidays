@@ -70,16 +70,15 @@ class HolidayApiClientService implements HolidayApiClientInterface
         return $this->baseApiUrl . 'isPublicHoliday' . "&date=$date&country=" . $country->getCountryCode();
     }
 
-    private function getUrlForSpecificHolidayDate(Country $country, string $date)
+    private function getUrlForSpecificHolidayDate(Country $country, string $date) : string
     {
         return $this->baseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode();
     }
 
-    public function getDateHolidayType(string $date, string $countryName) : string
+    public function getDateHolidayType(string $date, string $countryName)
     {
         $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         $holiday = $country->getHolidayByDate($date);
-
         if ($holiday) {
             return 'holiday';
         }
@@ -93,7 +92,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $holidayModel = $this->converterHelper
             ->getModel('GET', $this->getUrlForSpecificHolidayDate($country, $date), 'array<'.HolidayModel::class.'>')[0];
 
-        $holiday = $this->holidayRepository->create($holidayModel);
+        $holidayEntity = $this->holidayFactoryService->create($holidayModel);
+        $holiday = $this->holidayRepository->create($holidayEntity);
         $country->addHoliday($holiday);
         $this->entityManager->flush();
         return 'holiday';
