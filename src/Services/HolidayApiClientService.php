@@ -110,7 +110,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
             ->isPublicHoliday();
     }
 
-    public function getCountOfFreeDaysAndHolidays(string $year, Country $country)
+    public function getCountOfFreeDaysAndHolidays(string $year, Country $country) : int
     {
 //        return $this->holidayRepository->getHolidaysByYearAndCountryName($year, $countryName);
 //        $country = $this->countryRepository->findOneBy(['name' => $countryName]);
@@ -130,46 +130,57 @@ class HolidayApiClientService implements HolidayApiClientInterface
     {
         $maxFreeDays = 0;
         $count = 0;
-        $streakStarterDate = null;
-        $streakStarterFound = false;
+        $streakStartDate = null;
+        $streakEndDate = null;
+        $streakStarted = false;
+        $logger = [];
         for ($holidayIndex = 1; $holidayIndex < count($holidays); $holidayIndex++) {
             $date0 = Carbon::parse($holidays[$holidayIndex - 1]->getDate());
             $date1 = Carbon::parse($holidays[$holidayIndex]->getDate());
-
             $dayDifference = $date0->diffInDays($date1);
+
+            if ($dayDifference == 1) {
+                if (!$streakStarted) {
+                    $streakStartDate = $date0;
+                    $streakStarted = true;
+                }
+                $count++;
+            }
+
             if ($maxFreeDays < $count) {
                 $maxFreeDays = $count;
             }
 
-            if ($dayDifference == 1) {
+            if ($dayDifference != 1 || $holidayIndex == count($holidays) - 1) {
                 $count++;
-            }
-
-            if (($dayDifference != 1 && $count > 0) || ($count > 0 && ($holidayIndex == count($holidays) - 1))) {
-                $count++;
-                for ($weekday = 0; $weekday < 2; $weekday++) {
-                    if ($date0->addDay()->isWeekend()) {
-                        $count++;
-                    }
-                    if ($streakStarterFound && $streakStarterDate->subDay(1)->isWeekend()) {
-                        $count++;
-                    }
-
+                if ($streakStarted) {
+                    $streakEndDate = $dayDifference == 1 ? $date1 : $date0;
+                    $streakStarted = false;
                 }
                 if ($maxFreeDays < $count) {
                     $maxFreeDays = $count;
                 }
                 $count = 0;
-                $streakStarterFound = false;
-            }
 
-            if ($count > 0 && !$streakStarterFound) {
-                $streakStarterDate = $date0;
-                $streakStarterFound = true;
             }
-
         }
-        return $maxFreeDays;
+        $continueToCountWeekendForward = true;
+        $continueToCountWeekendBackward = true;
+        for ($i = 0; $i < 2; $i++) {
+            if ($streakStartDate->subDay(1)->isWeekend() && $continueToCountWeekendBackward) {
+                $count++;
+            } else {
+                $continueToCountWeekendBackward = false;
+            }
+
+            if ($streakEndDate->addDay()->isWeekend() && $continueToCountWeekendForward) {
+                $count++;
+            } else {
+                $continueToCountWeekendForward = false;
+            }
+        }
+
+        return $count+$maxFreeDays;
     }
 
 
