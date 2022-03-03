@@ -3,6 +3,7 @@
 namespace App\Form\Type;
 
 use App\Model\HolidayRequestCheckDate;
+use App\Services\Transformer\CountryTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -12,6 +13,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class HolidayRequestCheckDateType extends AbstractType
 {
+
+    private CountryTransformer $countryTransformer;
+
+    public function __construct(CountryTransformer $countryTransformer){
+
+        $this->countryTransformer = $countryTransformer;
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -35,6 +43,8 @@ class HolidayRequestCheckDateType extends AbstractType
                     ],
                 ]
             );
+        $builder->get('country')
+            ->addModelTransformer($this->countryTransformer);
     }
 
     public function configureOptions(OptionsResolver $resolver)

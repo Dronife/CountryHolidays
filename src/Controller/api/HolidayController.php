@@ -68,7 +68,6 @@ class HolidayController extends AbstractFOSRestController
                         $holidayCheckDateModel->getDateByFormat('d-m-Y'), $holidayCheckDateModel->getCountry()),
                     200)
             );
-//            return new JsonResponse([$holidayCheckDateModel->getDateByFormat('d-m-Y')]);
         }
         return $this->handleView($this->view([$form->getErrors()]));
     }
@@ -82,9 +81,7 @@ class HolidayController extends AbstractFOSRestController
         $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-//            return $this->handleView(
-//                $this->view($holidayRequestModel->getCountry())
-//            );
+
             return $this->handleView(
                 $this->view(
                     $this->holidayApiClientService->getCountOfFreeDaysAndHolidays(

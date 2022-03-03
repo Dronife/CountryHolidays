@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Entity\Country;
 use Carbon\Carbon;
 use DateTimeInterface;
 
@@ -9,23 +10,9 @@ class HolidayRequestCheckDate
 {
 
     private DateTimeInterface $date;
-    private string $country;
+    private Country $country;
 
-    /**
-     * @return string
-     */
-    public function getCountry(): string
-    {
-        return $this->country;
-    }
 
-    /**
-     * @param string $country
-     */
-    public function setCountry(string $country): void
-    {
-        $this->country = $country;
-    }
 
     /**
      * @return DateTimeInterface
@@ -46,6 +33,22 @@ class HolidayRequestCheckDate
     public function getDateByFormat($format):string
     {
         return $this->date->format($format);
+    }
+
+    /**
+     * @return Country
+     */
+    public function getCountry(): Country
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param Country $country
+     */
+    public function setCountry(Country $country): void
+    {
+        $this->country = $country;
     }
 
 

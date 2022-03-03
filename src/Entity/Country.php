@@ -9,13 +9,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Oro\ORM\Query\AST\Functions\SimpleFunction;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Contracts\Translation\TranslatableInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @ORM\Entity(repositoryClass=CountryRepository::class)
  */
-class Country implements TranslatableInterface
+class Country
 {
     /**
      * @ORM\Id
@@ -107,9 +105,4 @@ class Country implements TranslatableInterface
         return $this->holidays->matching($criteria)->first() ?: null;
     }
 
-
-    public function trans(TranslatorInterface $translator, string $locale = null): string
-    {
-        // TODO: Implement trans() method.
-    }
 }

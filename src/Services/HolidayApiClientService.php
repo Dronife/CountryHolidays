@@ -45,11 +45,14 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->holidayFactoryService = $holidayFactoryService;
     }
 
-    public function getHolidaysByYearAndCountry($year, Country $country): Collection
+    public function getHolidaysByYearAndCountry(int $year, Country $country): array
     {
-        if (count($country->getHolidays()) == 0)
+        $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
+        if (count($holidays) == 0) {
             $this->addHolidaysToCountry($year, $country);
-        return $country->getholidays();
+            return $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
+        }
+        return $holidays;
     }
 
     private function addHolidaysToCountry($year, Country $country): void
@@ -79,9 +82,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
         return $this->baseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode();
     }
 
-    public function getDateHolidayType(string $date, string $countryName)
+    public function getDateHolidayType(string $date, Country $country) : string
     {
-        $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         $holiday = $country->getHolidayByDate($date);
         if ($holiday) {
             return self::TYPE_HOLIDAY;
@@ -112,14 +114,10 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     public function getCountOfFreeDaysAndHolidays(string $year, Country $country) : int
     {
-//        return $this->holidayRepository->getHolidaysByYearAndCountryName($year, $countryName);
-//        $country = $this->countryRepository->findOneBy(['name' => $countryName]);
         $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
         if (count($holidays) == 0)
             $this->addHolidaysToCountry($year, $country);
         return $this->getCountedFreeDays($holidays);
-        // add holidays to country then
-
     }
 
     /**
@@ -133,7 +131,6 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $streakStartDate = null;
         $streakEndDate = null;
         $streakStarted = false;
-        $logger = [];
         for ($holidayIndex = 1; $holidayIndex < count($holidays); $holidayIndex++) {
             $date0 = Carbon::parse($holidays[$holidayIndex - 1]->getDate());
             $date1 = Carbon::parse($holidays[$holidayIndex]->getDate());
