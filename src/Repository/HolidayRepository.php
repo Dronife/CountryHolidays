@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Holiday;
-use App\Model\HolidayModel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

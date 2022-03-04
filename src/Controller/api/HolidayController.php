@@ -5,17 +5,19 @@ namespace App\Controller\api;
 use App\Form\Type\HolidayRequestCheckDateType;
 use App\Form\Type\HolidayRequestForYearType;
 use App\Interfaces\HolidayApiClientInterface;
-use App\Model\HolidayRequestCheckDate;
-use App\Model\HolidayRequestForYearModel;
+use App\Model\Request\Holiday\HolidayRequestCheckDate;
+use App\Model\Request\Holiday\HolidayRequestForYearModel;
+use App\Model\Response\Holiday\HolidayResponseCheckDateModel;
+use App\Model\Response\Holiday\HolidayResponseCountOfFreeDaysModel;
+use App\Model\Response\Holiday\HolidayResponseForYearModel;
 use App\Services\ModelConverterHelper;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use App\Entity\Holiday;
-use OpenApi\Annotations as OA;
 
 
 class HolidayController extends AbstractFOSRestController
@@ -44,24 +46,11 @@ class HolidayController extends AbstractFOSRestController
      *          "year" = "\d+"
      *      }
      * )
-     *
-     * @OA\RequestBody(
-     *     required=true,
-     *     @OA\MediaType(
-     *             mediaType="application/x-www-form-urlencoded",
-     *              @OA\Schema(
-     *                  type="object",
-     *                  @OA\Property (property="country", description="Name of available countries", example="England", type="string"),
-     *                  @OA\Property (property="year", description="Query all holidays in given year", example="2020", type="integer")
-     *             )
-     *      )
-     * )
-     *
-     *
-     *
+     * @OA\RequestBody(description="", @Model(type=HolidayRequestForYearType::class)),
      * @OA\Response(
      *     response=200,
      *     description="Returns all holidays for given country and year",
+     *     @Model(type=HolidayResponseForYearModel::class)
      * )
      * @OA\Response(
      *     response=500,
@@ -85,7 +74,24 @@ class HolidayController extends AbstractFOSRestController
     }
 
     /**
-     * @Route("/api/holidays/checkDate", methods={"post"})
+     * @Route("/api/holidays/checkDate",
+     *      methods={"post"},
+     *     requirements={
+     *          "country"="\s",
+     *          "date" = "\s"
+     *      }
+     * )
+     * @OA\RequestBody(description="", @Model(type=HolidayRequestCheckDateType::class)),
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns type of day of given date",
+     *     @Model(type=HolidayResponseCheckDateModel::class)
+     * )
+     * @OA\Response(
+     *     response=500,
+     *     description="Unexpected server error",
+     * )
      */
     public function checkDate(Request $request): Response
     {
@@ -95,16 +101,29 @@ class HolidayController extends AbstractFOSRestController
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->handleView(
                 $this->view(
-                    $this->holidayApiClientService->getDateHolidayType(
-                        $holidayCheckDateModel->getDateByFormat('d-m-Y'), $holidayCheckDateModel->getCountry()),
-                    200)
+                    ['type' =>
+                        $this->holidayApiClientService->getDateHolidayType(
+                            $holidayCheckDateModel->getDateByFormat('d-m-Y'), $holidayCheckDateModel->getCountry())
+                    ],200)
             );
         }
         return $this->handleView($this->view([$form->getErrors()]));
     }
 
     /**
-     * @Route("/api/holidays/getCount", methods={"post"})
+     * @Route("/api/holidays/getCount", methods={"post"},
+     *          requirements={
+     *          "country"="\s",
+     *          "year" = "\s"
+     *      }
+     * )
+     * @OA\RequestBody(description="", @Model(type=HolidayRequestForYearType::class)),
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns type of day of given date",
+     *     @Model(type=HolidayResponseCountOfFreeDaysModel::class)
+     * )
      */
     public function getCount(Request $request): Response
     {
@@ -115,9 +134,10 @@ class HolidayController extends AbstractFOSRestController
 
             return $this->handleView(
                 $this->view(
-                    $this->holidayApiClientService->getCountOfFreeDaysAndHolidays(
-                        $holidayRequestModel->getYear(), $holidayRequestModel->getCountry()),
-                    200)
+                    ['count' =>
+                        $this->holidayApiClientService->getCountOfFreeDaysAndHolidays(
+                            $holidayRequestModel->getYear(), $holidayRequestModel->getCountry())
+                    ], 200)
             );
         }
         return $this->handleView($this->view([$form->getErrors()]));

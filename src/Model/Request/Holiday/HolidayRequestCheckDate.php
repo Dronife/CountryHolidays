@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Request\Holiday;
 
 use App\Entity\Country;
-use Carbon\Carbon;
 use DateTimeInterface;
 
 class HolidayRequestCheckDate

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Response\ApiClient;
 
 use App\Model\Holiday\Date;
 use App\Model\Holiday\Name;

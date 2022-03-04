@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Entity\Holiday;
-use App\Model\HolidayModel;
+use App\Model\Response\ApiClient\HolidayModel;
 
 class HolidayFactoryService
 {

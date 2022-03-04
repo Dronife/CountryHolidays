@@ -5,12 +5,11 @@ namespace App\Services;
 use App\Entity\Country;
 use App\Entity\Holiday;
 use App\Interfaces\HolidayApiClientInterface;
-use App\Model\DayPublicHoliday;
-use App\Model\HolidayModel;
+use App\Model\Response\ApiClient\DayPublicHoliday;
+use App\Model\Response\ApiClient\HolidayModel;
 use App\Repository\CountryRepository;
 use App\Repository\HolidayRepository;
 use Carbon\Carbon;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -57,7 +56,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     private function addHolidaysToCountry($year, Country $country): void
     {
-        /** @var HolidayModel[] $holidayModels */
+        /** @var \App\Model\Response\ApiClient\HolidayModel[] $holidayModels */
         $holidayModels = $this->converterHelper->getModel('GET', $this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
         foreach ($holidayModels as $holidayModel) {
             $holidayEntity = $this->holidayFactoryService->create($holidayModel);

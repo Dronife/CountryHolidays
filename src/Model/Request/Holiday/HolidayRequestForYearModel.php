@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Request\Holiday;
 
 use App\Entity\Country;
 
