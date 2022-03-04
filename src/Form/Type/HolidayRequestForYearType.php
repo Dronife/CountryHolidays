@@ -34,8 +34,7 @@ class HolidayRequestForYearType extends AbstractType
         $builder
             ->add('country', TextType::class,
                 [
-//                    'class' => Country::class,
-                    'required' => true,
+//                    'invalid_message' => "yooo wazzup",
                     'constraints' => [
                         new NotBlank(),
                     ],

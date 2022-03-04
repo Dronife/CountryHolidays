@@ -12,7 +12,8 @@ class CountryTransformer implements DataTransformerInterface
 
     private CountryRepository $countryRepository;
 
-    public function __construct(CountryRepository $countryRepository){
+    public function __construct(CountryRepository $countryRepository)
+    {
 
         $this->countryRepository = $countryRepository;
     }
@@ -22,8 +23,15 @@ class CountryTransformer implements DataTransformerInterface
         // TODO: Implement transform() method.
     }
 
-    public function reverseTransform($value) : ?Country
+    public function reverseTransform($value): ?Country
     {
-        return $this->countryRepository->findOneBy(['name'=>$value]);
+        $country = $this->countryRepository->findOneBy(['name' => $value]);
+        if ($country == null) {
+            $failure = new TransformationFailedException();
+            $failure->setInvalidMessage(sprintf("Country with '%s' name does not exist", $value));
+            throw $failure;
+        }
+
+        return $country;
     }
 }

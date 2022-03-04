@@ -36,8 +36,6 @@ class HolidayRequestCheckDateType extends AbstractType
         ])
             ->add('country', TextType::class,
                 [
-                    'label' => false,
-                    'required' => true,
                     'constraints' => [
                         new NotBlank(),
                     ],

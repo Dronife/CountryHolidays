@@ -16,6 +16,7 @@
         "nelmio/api-doc-bundle": "^4.8",
         "nesbot/carbon": "^2.57",
         "oro/doctrine-extensions": "^2.0",
+        "symfony/asset": "5.4.*",
         "symfony/console": "5.4.*",
         "symfony/dotenv": "5.4.*",
         "symfony/flex": "^1.17|^2",
@@ -26,8 +27,10 @@
         "symfony/monolog-bundle": "^3.0",
         "symfony/proxy-manager-bridge": "5.4.*",
         "symfony/runtime": "5.4.*",
+        "symfony/twig-bundle": "5.4.*",
         "symfony/validator": "5.4.*",
-        "symfony/yaml": "5.4.*"
+        "symfony/yaml": "5.4.*",
+        "zircote/swagger-php": "^4.2"
     },
     "config": {
         "allow-plugins": {
