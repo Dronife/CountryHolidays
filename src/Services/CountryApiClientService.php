@@ -3,53 +3,47 @@
 namespace App\Services;
 
 use App\Entity\Country;
-use App\Interfaces\CountryHelperInterface;
+use App\Factory\CountryFactory;
+use App\Interfaces\CountryApiClientInterface;
+use App\Model\Response\Country\CountryModel;
 use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class CountryApiClientService implements CountryHelperInterface
+class CountryApiClientService implements CountryApiClientInterface
 {
     private $repository;
-    private $client;
+    private $apiRequest;
     private $entityManager;
-    public function __construct(CountryRepository $countryRepository, HttpClientInterface $client,
-    EntityManagerInterface $entityManager)
+    private const COUNTRY_URL = 'https://kayaposoft.com/enrico/json/v2.0/?action=getSupportedCountries';
+    private CountryFactory $countryFactory;
+
+    public function __construct(CountryRepository $countryRepository,ApiRequest $apiRequest,
+    EntityManagerInterface $entityManager, CountryFactory $countryFactory)
     {
-        $this->client = $client;
+        $this->apiRequest = $apiRequest;
         $this->repository = $countryRepository;
         $this->entityManager = $entityManager;
+        $this->countryFactory = $countryFactory;
     }
 
-    public function getCountries(): iterable
+    public function getCountries(): array
     {
-        $this->initData();
+        $this->saveCountriesIfDoesNotExist();
         return  array_map(function($country){
             return $country->getName();
         },$this->repository->findAll());
     }
 
-    private function initData()
+    private function saveCountriesIfDoesNotExist() : void
     {
         if ($this->repository->getCount() == 0) {
-            $response = $this->client->request(
-                'GET',
-                'https://kayaposoft.com/enrico/json/v2.0/?action=getSupportedCountries'
-            );
-            $response->toArray();
-
-            array_map(function ($object) {
-                $this->addNew($object['fullName'], $object['countryCode']);
-            }, $response->toArray());
+            $countryModels = $this->apiRequest->get(self::COUNTRY_URL, 'array<'.CountryModel::class.'>');
+            foreach($countryModels as $countryModel){
+                $country = $this->countryFactory->create($countryModel);
+                $this->repository->findOneOrCreate($country);
+            }
         }
-    }
-
-    public function addNew(string $name, string $countryCode){
-        $country = new Country();
-        $country->setName($name);
-        $country->setCountryCode($countryCode);
-        $this->entityManager->persist($country);
-        $this->entityManager->flush();
     }
 
 

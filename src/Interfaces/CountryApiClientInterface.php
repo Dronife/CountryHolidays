@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface CountryHelperInterface
+interface CountryApiClientInterface
 {
 
 }

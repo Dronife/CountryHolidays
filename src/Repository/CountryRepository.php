@@ -25,6 +25,26 @@ class CountryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+    public function findOneOrCreate(Country $country) : Country
+    {
+        $entity = $this->findOneBy([
+            'name' => $country->getName(),
+            'country_code' => $country->getCountryCode(),
+        ]);
+
+        if($entity === null)
+        {
+            $entity = $this->create($country);
+        }
+        return $entity;
+    }
+
+    public function create(Country $country) : Country
+    {
+        $this->_em->persist($country);
+        $this->_em->flush();
+        return $country;
+    }
 
 
 

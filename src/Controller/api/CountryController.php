@@ -2,19 +2,17 @@
 
 namespace App\Controller\api;
 
-use App\Interfaces\CountryHelperInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Interfaces\CountryApiClientInterface;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\Response\Country\CountryResponseAllSupported;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class CountryController extends AbstractController
+class CountryController extends AbstractFOSRestController
 {
-    private CountryHelperInterface $countryApiClientService;
+    private CountryApiClientInterface $countryApiClientService;
 
-    public function __construct(CountryHelperInterface $countryApiClientService)
+    public function __construct(CountryApiClientInterface $countryApiClientService)
     {
         $this->countryApiClientService = $countryApiClientService;
     }
@@ -30,9 +28,13 @@ class CountryController extends AbstractController
      *      )
      * )
      */
-    public function index(): JsonResponse
+    public function index(): Response
     {
-        return new JsonResponse($this->countryApiClientService->getCountries(), 200);
+        return $this->handleView(
+            $this->view(
+                $this->countryApiClientService->getCountries(), 200
+            )
+        );
     }
-    
+
 }
