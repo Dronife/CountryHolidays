@@ -8,7 +8,7 @@ use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class CountryHelper implements CountryHelperInterface
+class CountryApiClientService implements CountryHelperInterface
 {
     private $repository;
     private $client;

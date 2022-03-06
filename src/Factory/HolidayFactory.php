@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Factory;
 
 use App\Entity\Holiday;
 use App\Model\Response\ApiClient\HolidayModel;
 
-class HolidayFactoryService
+class HolidayFactory
 {
     public function create(HolidayModel $holidayModel) : Holiday
     {

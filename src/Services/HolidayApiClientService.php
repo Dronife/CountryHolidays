@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Entity\Country;
 use App\Entity\Holiday;
+use App\Factory\HolidayFactory;
 use App\Interfaces\HolidayApiClientInterface;
 use App\Model\Response\ApiClient\DayPublicHoliday;
 use App\Model\Response\ApiClient\HolidayModel;
@@ -22,8 +23,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
     private CountryRepository $countryRepository;
     private string $baseApiUrl;
     private HttpClientInterface $client;
-    private HolidayFactoryService $holidayFactoryService;
-    private ModelConverterHelper $converterHelper;
+    private HolidayFactory $holidayFactory;
+    private ApiRequest $apiRequest;
     private const TYPE_HOLIDAY = 'holiday';
     private const TYPE_FREE_DAY = 'free day';
     private const TYPE_WORKDAY = 'workday';
@@ -32,16 +33,16 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     public function __construct(HolidayRepository      $holidayRepository, CountryRepository $countryRepository,
                                 EntityManagerInterface $entityManager, string $baseApiUrl,
-                                HttpClientInterface    $client, ModelConverterHelper $converterHelper,
-                                HolidayFactoryService  $holidayFactoryService)
+                                HttpClientInterface    $client, ApiRequest $apiRequest,
+                                HolidayFactory         $holidayFactory)
     {
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
         $this->countryRepository = $countryRepository;
         $this->baseApiUrl = $baseApiUrl;
         $this->client = $client;
-        $this->converterHelper = $converterHelper;
-        $this->holidayFactoryService = $holidayFactoryService;
+        $this->apiRequest = $apiRequest;
+        $this->holidayFactory = $holidayFactory;
     }
 
     public function getHolidaysByYearAndCountry(int $year, Country $country): array
@@ -56,10 +57,10 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     private function addHolidaysToCountry($year, Country $country): void
     {
-        /** @var \App\Model\Response\ApiClient\HolidayModel[] $holidayModels */
-        $holidayModels = $this->converterHelper->getModel('GET', $this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
+        /** @var HolidayModel[] $holidayModels */
+        $holidayModels = $this->apiRequest->get( $this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
         foreach ($holidayModels as $holidayModel) {
-            $holidayEntity = $this->holidayFactoryService->create($holidayModel);
+            $holidayEntity = $this->holidayFactory->create($holidayModel);
             $holiday = $this->holidayRepository->findOneOrCreate($holidayEntity);
             $country->addHoliday($holiday);
             $this->entityManager->flush();
@@ -94,10 +95,10 @@ class HolidayApiClientService implements HolidayApiClientInterface
             return self::TYPE_WORKDAY;
         }
 
-        $holidayModel = $this->converterHelper
-            ->getModel('GET', $this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
+        $holidayModel = $this->apiRequest
+            ->get( $this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
 
-        $holidayEntity = $this->holidayFactoryService->create($holidayModel);
+        $holidayEntity = $this->holidayFactory->create($holidayModel);
         $holiday = $this->holidayRepository->create($holidayEntity);
         $country->addHoliday($holiday);
         $this->entityManager->flush();
@@ -106,8 +107,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     private function isSelectedDateIsPublicHoliday(Country $country, string $date): bool
     {
-        return $this->converterHelper
-            ->getModel('GET', $this->getUrlForDayCheck($country, $date), DayPublicHoliday::class)
+        return $this->apiRequest
+            ->get($this->getUrlForDayCheck($country, $date), DayPublicHoliday::class)
             ->isPublicHoliday();
     }
 

@@ -5,7 +5,7 @@ namespace App\Services;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class ModelConverterHelper
+class ApiRequest
 {
 
     private $serializer;
@@ -23,9 +23,9 @@ class ModelConverterHelper
 //        return $this->serializer->deserialize($response, 'array<'.$class.'>', 'json');
 //    }
 
-    public function getModel($method, $url, $class)
+    public function get($url, $class)
     {
-        $response = $this->client->request($method, $url)->getContent();
+        $response = $this->client->request('GET', $url)->getContent();
         return $this->serializer->deserialize($response, $class, 'json');
     }
 
