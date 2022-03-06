@@ -51,6 +51,10 @@ class HolidayController extends AbstractFOSRestController
      *     @Model(type=HolidayResponseForYearModel::class)
      * )
      * @OA\Response(
+     *     response=400,
+     *     description="Request data incorrect",
+     * )
+     * @OA\Response(
      *     response=500,
      *     description="Unexpected server error",
      * )
@@ -89,6 +93,10 @@ class HolidayController extends AbstractFOSRestController
      *      )
      * )
      * @OA\Response(
+     *     response=400,
+     *     description="Request data incorrect",
+     * )
+     * @OA\Response(
      *     response=500,
      *     description="Unexpected server error",
      * )
@@ -106,7 +114,7 @@ class HolidayController extends AbstractFOSRestController
                     , 200)
             );
         }
-        return $this->handleView($this->view([$form->getErrors()]));
+        return $this->handleView($this->view([$form->getErrors()],400));
     }
 
     /**
@@ -125,6 +133,14 @@ class HolidayController extends AbstractFOSRestController
      *          type="integer"
      *      )
      * )
+     * @OA\Response(
+     *     response=400,
+     *     description="Request data incorrect",
+     * )
+     * @OA\Response(
+     *     response=500,
+     *     description="Unexpected server error",
+     * )
      */
     public function getCount(Request $request): Response
     {
@@ -140,6 +156,6 @@ class HolidayController extends AbstractFOSRestController
                     , 200)
             );
         }
-        return $this->handleView($this->view([$form->getErrors()]));
+        return $this->handleView($this->view([$form->getErrors()],400));
     }
 }

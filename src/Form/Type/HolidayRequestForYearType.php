@@ -37,11 +37,9 @@ class HolidayRequestForYearType extends AbstractType
                 ]
             )->add('year', IntegerType::class,
                 [
-                    'label' => false,
-                    'required' => true,
                     'constraints' => [
                         new NotBlank(),
-                        new GreaterThan(2000),
+                        new GreaterThan(2010),
                         new LessThan(3000),
                     ]
                 ]);

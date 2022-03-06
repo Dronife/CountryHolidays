@@ -62,14 +62,21 @@ class HolidayModel
         $this->holidayType = $holidayType;
     }
 
-    public function getDefaultName() : string
+    public function getDefaultName(): string
     {
-        return $this->getName()[1]['text'];
+        $indexOfEnglishLanguage = 0;
+        foreach ($this->getName() as $key => $title) {
+            if ($title['lang'] == 'en') {
+                $indexOfEnglishLanguage = $key;
+                break;
+            }
+        }
+        return  $this->getName()[$indexOfEnglishLanguage]['text'];
     }
 
-    public function getDateTime() : \DateTimeInterface
+    public function getDateTime(): \DateTimeInterface
     {
-        return Carbon::parse($this->getDate()->getYear()."-".$this->getDate()->getMonth()."-".$this->getDate()->getDay());
+        return Carbon::parse($this->getDate()->getYear() . "-" . $this->getDate()->getMonth() . "-" . $this->getDate()->getDay());
     }
 
 }

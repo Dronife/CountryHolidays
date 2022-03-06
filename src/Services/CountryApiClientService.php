@@ -2,19 +2,17 @@
 
 namespace App\Services;
 
-use App\Entity\Country;
 use App\Factory\CountryFactory;
 use App\Interfaces\CountryApiClientInterface;
-use App\Model\Response\Country\CountryModel;
+use App\Model\Response\ApiClient\CountryModel;
 use App\Repository\CountryRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class CountryApiClientService implements CountryApiClientInterface
 {
-    private $repository;
-    private $apiRequest;
-    private $entityManager;
+    private CountryRepository $repository;
+    private ApiRequest $apiRequest;
+    private EntityManagerInterface $entityManager;
     private const COUNTRY_URL = 'https://kayaposoft.com/enrico/json/v2.0/?action=getSupportedCountries';
     private CountryFactory $countryFactory;
 

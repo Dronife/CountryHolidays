@@ -3,7 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Country;
-use App\Model\Response\Country\CountryModel;
+use App\Model\Response\ApiClient\CountryModel;
 
 class CountryFactory
 {
