@@ -33,7 +33,7 @@ class CountryApiClientService implements CountryApiClientInterface
         },$this->repository->findAll());
     }
 
-    private function saveCountriesIfDoesNotExist() : void
+    public function saveCountriesIfDoesNotExist() : void
     {
         if ($this->repository->getCount() == 0) {
             $countryModels = $this->apiRequest->get(self::COUNTRY_URL, 'array<'.CountryModel::class.'>');

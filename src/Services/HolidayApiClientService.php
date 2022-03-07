@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Entity\Country;
 use App\Entity\Holiday;
 use App\Factory\HolidayFactory;
+use App\Interfaces\CountryApiClientInterface;
 use App\Interfaces\HolidayApiClientInterface;
 use App\Model\Response\ApiClient\DayPublicHoliday;
 use App\Model\Response\ApiClient\HolidayModel;
@@ -32,7 +33,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
     public function __construct(HolidayRepository      $holidayRepository, CountryRepository $countryRepository,
                                 EntityManagerInterface $entityManager, string $baseApiUrl,
                                 HttpClientInterface    $client, ApiRequest $apiRequest,
-                                HolidayFactory         $holidayFactory)
+                                HolidayFactory         $holidayFactory,
+                                CountryApiClientInterface $countryApiClient)
     {
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
@@ -41,6 +43,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->client = $client;
         $this->apiRequest = $apiRequest;
         $this->holidayFactory = $holidayFactory;
+        $countryApiClient->saveCountriesIfDoesNotExist();
     }
 
     public function getHolidaysByYearAndCountry(int $year, Country $country): array
