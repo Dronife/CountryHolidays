@@ -12,6 +12,10 @@ Just copy files from this repository to your project root directory.
     ```bash
     $ sudo echo "172.11.11.10 symfony.test" >> /etc/hosts
     ```
+     **Running on mac:**
+    ```bash
+    $ sudo echo "127.0.0.1 symfony.test" >> /etc/hosts
+    ```
 3. Build/run containers
     ```bash
     $ ./start-dev.sh
@@ -27,8 +31,12 @@ Just copy files from this repository to your project root directory.
        - `setfacl -R -m u:"$HTTPDUSER":rwX -m u:$(whoami):rwX var/log var/cache`
 
        2. run `composer install`
-5. Visit [symfony.test](http://symfony.test)
-6. Stop containers
+       3. run `php bin/console doctrine:migrations:migrate`
+5.  - Website [symfony.test](http://symfony.test)
+        - Mac: [symfony.test:8080](http://symfony.test:8080)
+    - Phpmyadmin [symfony.test:8888](http://symfony.test:8888)
+6. Api documentation in route `/api/doc`
+7. Stop containers
     ```bash
     $ ./stop-dev.sh
     ```
