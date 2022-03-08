@@ -1,0 +1,23 @@
+# Read the documentation: https://symfony.com/doc/master/bundles/FOSRestBundle/index.html
+fos_rest:
+    serializer:
+        serialize_null: true
+    param_fetcher_listener: true
+    allowed_methods_listener: true
+    body_listener:
+        enabled: true
+    view:
+        mime_types:
+            json: [ 'application/json', 'application/json;version=1.0', 'application/json;version=1.1' ]
+        formats:
+            json: true
+        view_response_listener: true
+    format_listener:
+        rules:
+            - { path: '^/api/doc', priorities: [ 'html' ], fallback_format: html, prefer_extension: true }
+            - { path: '^/api', priorities: [ 'json' ], fallback_format: json, prefer_extension: true }
+            - { path: '^/', priorities: [ 'html', 'xml', '/'], fallback_format: ~, prefer_extension: true }
+    versioning:
+        enabled: false
+    service:
+        serializer: fos_rest.serializer.jms

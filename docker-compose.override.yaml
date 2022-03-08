@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+    mysql:
+        ports:
+            - 3307:3306
+        volumes:
+            - ./docker/.data/mysql:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: symfony
+            MYSQL_USER: symfony
+            MYSQL_PASSWORD: symfony
+        networks:
+            default:
+                ipv4_address: 172.11.11.20
+    php:
+        volumes:
+            - ./:/var/www/symfony
+        #            - ./docker/key/ssh/id_rsa:/var/www/.ssh/id_rsa:ro
+        #            - ./docker/key/ssh/id_rsa.pub:/var/www/.ssh/id_rsa.pub:ro
+        #            - ./docker/key/ssh/known_hosts:/var/www/.ssh/known_hosts:ro
+        environment:
+            - SSH_AUTH_SOCK
+    nginx:
+        ports:
+            - 8080:80
+        volumes:
+            - ./:/var/www/symfony
+            - ./docker/logs/nginx/:/var/log/nginx
+        networks:
+            default:
+                ipv4_address: 172.11.11.10
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+          - 8888:80
+        environment:
+            PMA_HOST: mysql
+            PMA_USER: root
+            PMA_PASSWORD: root
+
+networks:
+    default:
+        name: symfony
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                -   subnet: 172.11.11.0/24
