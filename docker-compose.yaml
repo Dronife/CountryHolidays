@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+    mysql:
+        image: mysql:5.7
+    php:
+        build:
+            context: docker/php-fpm
+            args:
+                TIMEZONE: Europe/Vilnius
+    nginx:
+        build:
+            context: docker/nginx
