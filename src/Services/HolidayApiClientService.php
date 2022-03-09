@@ -17,8 +17,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class HolidayApiClientService implements HolidayApiClientInterface
 {
-
-
     private EntityManagerInterface $entityManager;
     private HolidayRepository $holidayRepository;
     private CountryRepository $countryRepository;
@@ -195,6 +193,4 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
         return $count + $maxFreeDays;
     }
-
-
 }

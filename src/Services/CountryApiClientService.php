@@ -16,9 +16,12 @@ class CountryApiClientService implements CountryApiClientInterface
     private const COUNTRY_URL = 'https://kayaposoft.com/enrico/json/v2.0/?action=getSupportedCountries';
     private CountryFactory $countryFactory;
 
-    public function __construct(CountryRepository $countryRepository,ApiRequest $apiRequest,
-    EntityManagerInterface $entityManager, CountryFactory $countryFactory)
-    {
+    public function __construct(
+        CountryRepository $countryRepository,
+        ApiRequest $apiRequest,
+        EntityManagerInterface $entityManager,
+        CountryFactory $countryFactory
+    ) {
         $this->apiRequest = $apiRequest;
         $this->repository = $countryRepository;
         $this->entityManager = $entityManager;
@@ -28,22 +31,19 @@ class CountryApiClientService implements CountryApiClientInterface
     public function getCountries(): array
     {
         $this->saveCountriesIfDoesNotExist();
-        return  array_map(function($country){
+        return array_map(function ($country) {
             return $country->getName();
-        },$this->repository->findAll());
+        }, $this->repository->findAll());
     }
 
-    public function saveCountriesIfDoesNotExist() : void
+    public function saveCountriesIfDoesNotExist(): void
     {
         if ($this->repository->getCount() == 0) {
-            $countryModels = $this->apiRequest->get(self::COUNTRY_URL, 'array<'.CountryModel::class.'>');
-            foreach($countryModels as $countryModel){
+            $countryModels = $this->apiRequest->get(self::COUNTRY_URL, 'array<' . CountryModel::class . '>');
+            foreach ($countryModels as $countryModel) {
                 $country = $this->countryFactory->create($countryModel);
                 $this->repository->findOneOrCreate($country);
             }
         }
     }
-
-
-
 }

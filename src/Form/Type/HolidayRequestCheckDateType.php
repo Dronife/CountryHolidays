@@ -13,11 +13,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class HolidayRequestCheckDateType extends AbstractType
 {
-
     private CountryTransformer $countryTransformer;
 
-    public function __construct(CountryTransformer $countryTransformer){
-
+    public function __construct(CountryTransformer $countryTransformer)
+    {
         $this->countryTransformer = $countryTransformer;
     }
 
@@ -27,7 +26,7 @@ class HolidayRequestCheckDateType extends AbstractType
             'widget' => 'single_text',
             'input_format' => 'string',
             'format' => "yyyy-MM-dd",
-            'required'=> true,
+            'required' => true,
             'html5' => false,
             'label' => false,
             'constraints' => [
@@ -51,7 +50,8 @@ class HolidayRequestCheckDateType extends AbstractType
             [
                 'data_class' => HolidayRequestCheckDate::class,
                 'csrf_protection' => false,
-            ]);
+            ]
+        );
     }
 
     /**

@@ -32,9 +32,9 @@ class CountryController extends AbstractFOSRestController
     {
         return $this->handleView(
             $this->view(
-                $this->countryApiClientService->getCountries(), 200
+                $this->countryApiClientService->getCountries(),
+                200
             )
         );
     }
-
 }

@@ -20,7 +20,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HolidayController extends AbstractFOSRestController
 {
-
     private HolidayApiClientInterface $holidayApiClientService;
     private SerializerInterface $serializer;
     /**
@@ -28,9 +27,11 @@ class HolidayController extends AbstractFOSRestController
      */
     private ApiRequest $converterHelper;
 
-    public function __construct(HolidayApiClientInterface $holidayApiClientService, SerializerInterface $serializer, ApiRequest $converterHelper)
-    {
-
+    public function __construct(
+        HolidayApiClientInterface $holidayApiClientService,
+        SerializerInterface $serializer,
+        ApiRequest $converterHelper
+    ) {
         $this->holidayApiClientService = $holidayApiClientService;
         $this->serializer = $serializer;
         $this->converterHelper = $converterHelper;
@@ -68,8 +69,11 @@ class HolidayController extends AbstractFOSRestController
             return $this->handleView(
                 $this->view(
                     $this->holidayApiClientService->getHolidaysByYearAndCountry(
-                        $holidayRequestModel->getYear(), $holidayRequestModel->getCountry()),
-                    200)
+                        $holidayRequestModel->getYear(),
+                        $holidayRequestModel->getCountry()
+                    ),
+                    200
+                )
             );
         }
         return $this->handleView($this->view([$form->getErrors()]));
@@ -110,11 +114,15 @@ class HolidayController extends AbstractFOSRestController
             return $this->handleView(
                 $this->view(
                     $this->holidayApiClientService->getDateHolidayType(
-                        $holidayCheckDateModel->getDateByFormat('d-m-Y'), $holidayCheckDateModel->getCountry())
-                    , 200)
+                        $holidayCheckDateModel->getDateByFormat('d-m-Y'),
+                        $holidayCheckDateModel->getCountry()
+                    )
+                    ,
+                    200
+                )
             );
         }
-        return $this->handleView($this->view([$form->getErrors()],400));
+        return $this->handleView($this->view([$form->getErrors()], 400));
     }
 
     /**
@@ -148,14 +156,17 @@ class HolidayController extends AbstractFOSRestController
         $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
             return $this->handleView(
                 $this->view(
                     $this->holidayApiClientService->getCountOfFreeDaysAndHolidays(
-                        $holidayRequestModel->getYear(), $holidayRequestModel->getCountry())
-                    , 200)
+                        $holidayRequestModel->getYear(),
+                        $holidayRequestModel->getCountry()
+                    )
+                    ,
+                    200
+                )
             );
         }
-        return $this->handleView($this->view([$form->getErrors()],400));
+        return $this->handleView($this->view([$form->getErrors()], 400));
     }
 }

@@ -7,7 +7,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ApiRequest
 {
-
     private $serializer;
     private $client;
 
@@ -29,7 +28,8 @@ class ApiRequest
         return $this->serializer->deserialize($response, $class, 'json');
     }
 
-    public function getRequestModel(string $requestContent, $class){
+    public function getRequestModel(string $requestContent, $class)
+    {
         return $this->serializer->deserialize($requestContent, $class, 'json');
     }
 }

@@ -18,8 +18,8 @@ class HolidayRequestForYearType extends AbstractType
 {
     private CountryTransformer $countryTransformer;
 
-    public function __construct(CountryTransformer $countryTransformer){
-
+    public function __construct(CountryTransformer $countryTransformer)
+    {
         $this->countryTransformer = $countryTransformer;
     }
 
@@ -35,18 +35,22 @@ class HolidayRequestForYearType extends AbstractType
                         new NotBlank(),
                     ],
                 ]
-            )->add('year', IntegerType::class,
+            )->add(
+                'year',
+                IntegerType::class,
                 [
                     'constraints' => [
                         new NotBlank(),
                         new GreaterThan(2010),
                         new LessThan(3000),
                     ]
-                ]);
+                ]
+            );
 
         $builder->get('country')
             ->addModelTransformer($this->countryTransformer);
     }
+
     /**
      * {@inheritdoc}
      */
@@ -58,7 +62,8 @@ class HolidayRequestForYearType extends AbstractType
                 'csrf_protection' => false,
                 'allow_extra_fields' => true,
 
-            ]);
+            ]
+        );
     }
 
     /**
@@ -68,6 +73,4 @@ class HolidayRequestForYearType extends AbstractType
     {
         return '';
     }
-
-
 }
