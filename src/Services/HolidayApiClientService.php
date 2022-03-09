@@ -60,6 +60,35 @@ class HolidayApiClientService implements HolidayApiClientInterface
         return $holidays;
     }
 
+    public function getDateHolidayType(string $date, Country $country): string
+    {
+        $holiday = $country->getHolidayByDate($date);
+        if ($holiday) {
+            return self::TYPE_HOLIDAY;
+        }
+
+        if (!$this->isSelectedDateIsPublicHoliday($country, $date)) {
+            if (Carbon::parse($date)->isWeekend()) {
+                return self::TYPE_FREE_DAY;
+            }
+            return self::TYPE_WORKDAY;
+        }
+
+        $holidayModel = $this->apiRequest
+            ->get($this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
+
+        $this->createAndAssignHoliday($holidayModel, $country);
+        return self::TYPE_HOLIDAY;
+    }
+
+    public function getCountOfFreeDaysAndHolidays(string $year, Country $country): int
+    {
+//        if (count($holidays) == 0)
+        $this->addHolidaysToCountry($year, $country);
+        $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
+        return $this->getCountedFreeDays($holidays);
+    }
+
     private function addHolidaysToCountry($year, Country $country): void
     {
         /** @var HolidayModel[] $holidayModels */
@@ -101,43 +130,13 @@ class HolidayApiClientService implements HolidayApiClientInterface
             );
     }
 
-    public function getDateHolidayType(string $date, Country $country): string
-    {
-        $holiday = $country->getHolidayByDate($date);
-        if ($holiday) {
-            return self::TYPE_HOLIDAY;
-        }
-
-        if (!$this->isSelectedDateIsPublicHoliday($country, $date)) {
-            if (Carbon::parse($date)->isWeekend()) {
-                return self::TYPE_FREE_DAY;
-            }
-            return self::TYPE_WORKDAY;
-        }
-
-        $holidayModel = $this->apiRequest
-            ->get($this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
-
-        $this->createAndAssignHoliday($holidayModel, $country);
-        return self::TYPE_HOLIDAY;
-    }
-
-
     private function isSelectedDateIsPublicHoliday(Country $country, string $date): bool
     {
         return $this->apiRequest
             ->get($this->getUrlForDayCheck($country, $date), DayPublicHoliday::class)
             ->isPublicHoliday();
     }
-
-    public function getCountOfFreeDaysAndHolidays(string $year, Country $country): int
-    {
-//        if (count($holidays) == 0)
-        $this->addHolidaysToCountry($year, $country);
-        $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
-        return $this->getCountedFreeDays($holidays);
-    }
-
+    
     /**
      * @param Holiday[] $holidays
      * @return int
