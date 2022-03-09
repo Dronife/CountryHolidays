@@ -30,12 +30,16 @@ class HolidayApiClientService implements HolidayApiClientInterface
     private const TYPE_FREE_DAY = 'free day';
     private const TYPE_WORKDAY = 'workday';
 
-    public function __construct(HolidayRepository      $holidayRepository, CountryRepository $countryRepository,
-                                EntityManagerInterface $entityManager, string $baseApiUrl,
-                                HttpClientInterface    $client, ApiRequest $apiRequest,
-                                HolidayFactory         $holidayFactory,
-                                CountryApiClientInterface $countryApiClient)
-    {
+    public function __construct(
+        HolidayRepository $holidayRepository,
+        CountryRepository $countryRepository,
+        EntityManagerInterface $entityManager,
+        string $baseApiUrl,
+        HttpClientInterface $client,
+        ApiRequest $apiRequest,
+        HolidayFactory $holidayFactory,
+        CountryApiClientInterface $countryApiClient
+    ) {
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
         $this->countryRepository = $countryRepository;
@@ -60,17 +64,19 @@ class HolidayApiClientService implements HolidayApiClientInterface
     {
         /** @var HolidayModel[] $holidayModels */
         $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
-        if (count($holidays) > 0)
-        {
+        if (count($holidays) > 0) {
             return;
         }
-        $holidayModels = $this->apiRequest->get($this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
+        $holidayModels = $this->apiRequest->get(
+            $this->getHolidayForYearUrl($year, $country),
+            'array<' . HolidayModel::class . '>'
+        );
         foreach ($holidayModels as $holidayModel) {
             $this->createAndAssignHoliday($holidayModel, $country);
         }
     }
 
-    private function createAndAssignHoliday(HolidayModel $holidayModel, Country $country) : void
+    private function createAndAssignHoliday(HolidayModel $holidayModel, Country $country): void
     {
         $holidayEntity = $this->holidayFactory->create($holidayModel);
         $holiday = $this->holidayRepository->findOneOrCreate($holidayEntity);
@@ -80,7 +86,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     private function getHolidayForYearUrl($year, $country): string
     {
-        return $this->baseApiUrl . "getHolidaysForYear&year=" . $year . "&country=" . $country->getCountryCode() . "&holidayType=public_holiday";
+        return $this->baseApiUrl . "getHolidaysForYear&year=" . $year . "&country=" . $country->getCountryCode(
+            ) . "&holidayType=public_holiday";
     }
 
     private function getUrlForDayCheck(Country $country, string $date): string
@@ -90,7 +97,8 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     private function getUrlForSpecificHolidayDate(Country $country, string $date): string
     {
-        return $this->baseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode();
+        return $this->baseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode(
+            );
     }
 
     public function getDateHolidayType(string $date, Country $country): string
@@ -101,8 +109,9 @@ class HolidayApiClientService implements HolidayApiClientInterface
         }
 
         if (!$this->isSelectedDateIsPublicHoliday($country, $date)) {
-            if (Carbon::parse($date)->isWeekend())
+            if (Carbon::parse($date)->isWeekend()) {
                 return self::TYPE_FREE_DAY;
+            }
             return self::TYPE_WORKDAY;
         }
 
@@ -167,7 +176,6 @@ class HolidayApiClientService implements HolidayApiClientInterface
                     $maxFreeDays = $count;
                 }
                 $count = 0;
-
             }
         }
         $continueToCountWeekendForward = true;
