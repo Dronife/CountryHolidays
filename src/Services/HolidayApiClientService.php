@@ -66,11 +66,16 @@ class HolidayApiClientService implements HolidayApiClientInterface
         }
         $holidayModels = $this->apiRequest->get($this->getHolidayForYearUrl($year, $country), 'array<' . HolidayModel::class . '>');
         foreach ($holidayModels as $holidayModel) {
-            $holidayEntity = $this->holidayFactory->create($holidayModel);
-            $holiday = $this->holidayRepository->findOneOrCreate($holidayEntity);
-            $country->addHoliday($holiday);
-            $this->entityManager->flush();
+            $this->createAndAssignHoliday($holidayModel, $country);
         }
+    }
+
+    private function createAndAssignHoliday(HolidayModel $holidayModel, Country $country) : void
+    {
+        $holidayEntity = $this->holidayFactory->create($holidayModel);
+        $holiday = $this->holidayRepository->findOneOrCreate($holidayEntity);
+        $country->addHoliday($holiday);
+        $this->entityManager->flush();
     }
 
     private function getHolidayForYearUrl($year, $country): string
@@ -104,12 +109,10 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $holidayModel = $this->apiRequest
             ->get($this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
 
-        $holidayEntity = $this->holidayFactory->create($holidayModel);
-        $holiday = $this->holidayRepository->create($holidayEntity);
-        $country->addHoliday($holiday);
-        $this->entityManager->flush();
+        $this->createAndAssignHoliday($holidayModel, $country);
         return self::TYPE_HOLIDAY;
     }
+
 
     private function isSelectedDateIsPublicHoliday(Country $country, string $date): bool
     {
