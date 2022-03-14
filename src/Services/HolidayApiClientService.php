@@ -17,6 +17,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class HolidayApiClientService implements HolidayApiClientInterface
 {
+    private const TYPE_HOLIDAY = 'holiday';
+    private const TYPE_FREE_DAY = 'free day';
+    private const TYPE_WORKDAY = 'workday';
     private EntityManagerInterface $entityManager;
     private HolidayRepository $holidayRepository;
     private CountryRepository $countryRepository;
@@ -24,9 +27,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
     private HttpClientInterface $client;
     private HolidayFactory $holidayFactory;
     private ApiRequest $apiRequest;
-    private const TYPE_HOLIDAY = 'holiday';
-    private const TYPE_FREE_DAY = 'free day';
-    private const TYPE_WORKDAY = 'workday';
+
 
     public function __construct(
         HolidayRepository $holidayRepository,

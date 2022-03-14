@@ -10,10 +10,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class CountryApiClientService implements CountryApiClientInterface
 {
+    private const COUNTRY_URL = 'https://kayaposoft.com/enrico/json/v2.0/?action=getSupportedCountries';
     private CountryRepository $repository;
     private ApiRequest $apiRequest;
     private EntityManagerInterface $entityManager;
-    private const COUNTRY_URL = 'https://kayaposoft.com/enrico/json/v2.0/?action=getSupportedCountries';
     private CountryFactory $countryFactory;
 
     public function __construct(
