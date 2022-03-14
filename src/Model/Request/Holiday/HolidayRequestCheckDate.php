@@ -29,7 +29,7 @@ class HolidayRequestCheckDate
         $this->date = $date;
     }
 
-    public function getDateByFormat($format):string
+    public function getDateByFormat(string $format):string
     {
         return $this->date->format($format);
     }
