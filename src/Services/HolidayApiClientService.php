@@ -20,7 +20,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
     private EntityManagerInterface $entityManager;
     private HolidayRepository $holidayRepository;
     private CountryRepository $countryRepository;
-    private string $baseApiUrl;
+    private string $kayaposoftBaseApiUrl;
     private HttpClientInterface $client;
     private HolidayFactory $holidayFactory;
     private ApiRequest $apiRequest;
@@ -41,7 +41,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
         $this->countryRepository = $countryRepository;
-        $this->baseApiUrl = $baseApiUrl;
+        $this->kayaposoftBaseApiUrl = $baseApiUrl;
         $this->client = $client;
         $this->apiRequest = $apiRequest;
         $this->holidayFactory = $holidayFactory;
@@ -113,18 +113,18 @@ class HolidayApiClientService implements HolidayApiClientInterface
 
     private function getHolidayForYearUrl($year, $country): string
     {
-        return $this->baseApiUrl . "getHolidaysForYear&year=" . $year . "&country=" . $country->getCountryCode(
+        return $this->kayaposoftBaseApiUrl . "getHolidaysForYear&year=" . $year . "&country=" . $country->getCountryCode(
             ) . "&holidayType=public_holiday";
     }
 
     private function getUrlForDayCheck(Country $country, string $date): string
     {
-        return $this->baseApiUrl . 'isPublicHoliday' . "&date=$date&country=" . $country->getCountryCode();
+        return $this->kayaposoftBaseApiUrl . 'isPublicHoliday' . "&date=$date&country=" . $country->getCountryCode();
     }
 
     private function getUrlForSpecificHolidayDate(Country $country, string $date): string
     {
-        return $this->baseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode(
+        return $this->kayaposoftBaseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode(
             );
     }
 
