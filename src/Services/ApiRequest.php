@@ -27,5 +27,5 @@ class ApiRequest
         $response = $this->client->request('GET', $url)->getContent();
         return $this->serializer->deserialize($response, $class, 'json');
     }
-    
+
 }

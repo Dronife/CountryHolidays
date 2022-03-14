@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Entity\Country;
@@ -33,7 +35,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         HolidayRepository $holidayRepository,
         CountryRepository $countryRepository,
         EntityManagerInterface $entityManager,
-        string $baseApiUrl,
+        string $kayaposoftBaseApiUrl,
         HttpClientInterface $client,
         ApiRequest $apiRequest,
         HolidayFactory $holidayFactory,
@@ -42,7 +44,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
         $this->countryRepository = $countryRepository;
-        $this->kayaposoftBaseApiUrl = $baseApiUrl;
+        $this->kayaposoftBaseApiUrl = $kayaposoftBaseApiUrl;
         $this->client = $client;
         $this->apiRequest = $apiRequest;
         $this->holidayFactory = $holidayFactory;
@@ -112,21 +114,35 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->entityManager->flush();
     }
 
-    private function getHolidayForYearUrl($year, $country): string
+    private function getHolidayForYearUrl($year, Country $country): string
     {
-        return $this->kayaposoftBaseApiUrl . "getHolidaysForYear&year=" . $year . "&country=" . $country->getCountryCode(
-            ) . "&holidayType=public_holiday";
+        return sprintf(
+            '%sgetHolidaysForYear&year=%s&country=%s&holidayType=public_holiday',
+            $this->kayaposoftBaseApiUrl,
+            $year,
+            $country->getCountryCode()
+        );
     }
 
     private function getUrlForDayCheck(Country $country, string $date): string
     {
-        return $this->kayaposoftBaseApiUrl . 'isPublicHoliday' . "&date=$date&country=" . $country->getCountryCode();
+        return sprintf(
+            '%sisPublicHoliday&date=%s&country=%s',
+            $this->kayaposoftBaseApiUrl,
+            $date,
+            $country->getCountryCode()
+        );
     }
 
     private function getUrlForSpecificHolidayDate(Country $country, string $date): string
     {
-        return $this->kayaposoftBaseApiUrl . "getHolidaysForDateRange&fromDate=$date&toDate=$date&country=" . $country->getCountryCode(
-            );
+        return sprintf(
+            '%sgetHolidaysForDateRange&fromDate=%s&toDate=%s&country=%s',
+            $this->kayaposoftBaseApiUrl,
+            $date,
+            $date,
+            $country->getCountryCode()
+        );
     }
 
     private function isSelectedDateIsPublicHoliday(Country $country, string $date): bool
@@ -135,7 +151,7 @@ class HolidayApiClientService implements HolidayApiClientInterface
             ->get($this->getUrlForDayCheck($country, $date), DayPublicHoliday::class)
             ->isPublicHoliday();
     }
-    
+
     /**
      * @param Holiday[] $holidays
      * @return int
