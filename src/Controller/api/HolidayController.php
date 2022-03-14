@@ -17,7 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/holidays")
+ */
 class HolidayController extends AbstractFOSRestController
 {
     private HolidayApiClientInterface $holidayApiClientService;
@@ -38,7 +40,7 @@ class HolidayController extends AbstractFOSRestController
     }
 
     /**
-     * @Route("/api/holidays",
+     * @Route("/",
      *     methods={"POST"},
      *     requirements={
      *          "country"="\s",
@@ -80,7 +82,7 @@ class HolidayController extends AbstractFOSRestController
     }
 
     /**
-     * @Route("/api/holidays/checkDate",
+     * @Route("/checkDate",
      *      methods={"post"},
      *     requirements={
      *          "country"="\s",
@@ -126,7 +128,7 @@ class HolidayController extends AbstractFOSRestController
     }
 
     /**
-     * @Route("/api/holidays/getCount", methods={"post"},
+     * @Route("/getCount", methods={"post"},
      *          requirements={
      *          "country"="\s",
      *          "year" = "\s"

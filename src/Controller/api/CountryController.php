@@ -18,7 +18,7 @@ class CountryController extends AbstractFOSRestController
     }
 
     /**
-     * @Route("/api/countries" , methods={"GET"})
+     * @Route("/countries" , methods={"GET"})
      * @OA\Response(
      *     response=200,
      *     description="Returns all holidays for given country and year",
