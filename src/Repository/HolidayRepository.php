@@ -19,7 +19,7 @@ class HolidayRepository extends ServiceEntityRepository
         parent::__construct($registry, Holiday::class);
     }
 
-    public function findOneOrCreate(Holiday $holiday) : Holiday
+    public function findOneOrCreate(Holiday $holiday): Holiday
     {
         $entity = $this->findOneBy([
             'name' => $holiday->getName(),
@@ -27,21 +27,21 @@ class HolidayRepository extends ServiceEntityRepository
             'date' => $holiday->getDate(),
         ]);
 
-        if($entity === null)
-        {
+        if ($entity === null) {
             $entity = $this->create($holiday);
         }
         return $entity;
     }
 
-    public function create(Holiday $holiday) : Holiday
+    public function create(Holiday $holiday): Holiday
     {
         $this->_em->persist($holiday);
         $this->_em->flush();
         return $holiday;
     }
 
-    public function getHolidaysByYearAndCountryName($year, $countryName){
+    public function getHolidaysByYearAndCountryName($year, $countryName)
+    {
         return $this->createQueryBuilder('h')
             ->leftJoin('h.countries', 'c')
             ->andWhere('YEAR(h.date) = :year')
@@ -49,6 +49,18 @@ class HolidayRepository extends ServiceEntityRepository
             ->setParameters(['year' => $year, 'countryName' => $countryName])
             ->getQuery()
             ->getResult();
+    }
+
+    public function countryHasHolidaysByYear(int $year, string $countryName): bool
+    {
+        return  $this->createQueryBuilder('h')
+        ->leftJoin('h.countries', 'c')
+        ->select('count(c.id)')
+        ->andWhere('YEAR(h.date) = :year')
+        ->andWhere('c.name = :countryName')
+        ->setParameters(['year' => $year, 'countryName' => $countryName])
+        ->getQuery()
+        ->getSingleScalarResult() > 0;
     }
 
 

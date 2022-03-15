@@ -48,17 +48,11 @@ class HolidayApiClientService implements HolidayApiClientInterface
         $this->client = $client;
         $this->apiRequest = $apiRequest;
         $this->holidayFactory = $holidayFactory;
-        $countryApiClient->saveCountriesIfDoesNotExist();
     }
 
     public function getHolidaysByYearAndCountry(int $year, Country $country): array
     {
-        $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
-        if (count($holidays) == 0) {
-            $this->addHolidaysToCountry($year, $country);
-            return $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
-        }
-        return $holidays;
+        return $this->holidayRepository->getHolidaysByYearAndCountryName($year, $country->getName());
     }
 
     public function getDateHolidayType(string $date, Country $country): string

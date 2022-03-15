@@ -5,9 +5,11 @@ namespace App\Controller\api;
 use App\Form\Type\HolidayRequestCheckDateType;
 use App\Form\Type\HolidayRequestForYearType;
 use App\Interfaces\HolidayApiClientInterface;
+use App\Message\Holiday\AddHolidaysToCountry;
 use App\Model\Request\Holiday\HolidayRequestCheckDate;
 use App\Model\Request\Holiday\HolidayRequestForYearModel;
 use App\Model\Response\Holiday\HolidayResponseForYearModel;
+use App\Repository\HolidayRepository;
 use App\Services\ApiRequest;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializerInterface;
@@ -15,11 +17,12 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/holidays")
- * 
+ *
  * @OA\Response(
  *     response=400,
  *     description="Request data incorrect",
@@ -37,15 +40,21 @@ class HolidayController extends AbstractFOSRestController
      * @var ApiRequest
      */
     private ApiRequest $converterHelper;
+    private HolidayRepository $holidayRepository;
+    private MessageBusInterface $messageBus;
 
     public function __construct(
         HolidayApiClientInterface $holidayApiClientService,
         SerializerInterface $serializer,
-        ApiRequest $converterHelper
+        ApiRequest $converterHelper,
+        HolidayRepository $holidayRepository,
+        MessageBusInterface $messageBus
     ) {
         $this->holidayApiClientService = $holidayApiClientService;
         $this->serializer = $serializer;
         $this->converterHelper = $converterHelper;
+        $this->holidayRepository = $holidayRepository;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -69,6 +78,14 @@ class HolidayController extends AbstractFOSRestController
         $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $countryHasHolidays = $this->holidayRepository->countryHasHolidaysByYear(
+                $holidayRequestModel->getYear(),
+                $holidayRequestModel->getCountry()->getName()
+            );
+            if (!$countryHasHolidays) {
+                $this->messageBus->dispatch(new AddHolidaysToCountry($holidayRequestModel->getYear(),$holidayRequestModel->getCountry()));
+            }
+
             return $this->handleView(
                 $this->view(
                     $this->holidayApiClientService->getHolidaysByYearAndCountry(
