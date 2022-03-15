@@ -19,6 +19,15 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/holidays")
+ * 
+ * @OA\Response(
+ *     response=400,
+ *     description="Request data incorrect",
+ * )
+ * @OA\Response(
+ *     response=500,
+ *     description="Unexpected server error",
+ * )
  */
 class HolidayController extends AbstractFOSRestController
 {
@@ -52,14 +61,6 @@ class HolidayController extends AbstractFOSRestController
      *     response=200,
      *     description="Returns all holidays for given country and year",
      *     @Model(type=HolidayResponseForYearModel::class)
-     * )
-     * @OA\Response(
-     *     response=400,
-     *     description="Request data incorrect",
-     * )
-     * @OA\Response(
-     *     response=500,
-     *     description="Unexpected server error",
      * )
      */
     public function holidays(Request $request): Response
@@ -98,14 +99,6 @@ class HolidayController extends AbstractFOSRestController
      *          type="string"
      *      )
      * )
-     * @OA\Response(
-     *     response=400,
-     *     description="Request data incorrect",
-     * )
-     * @OA\Response(
-     *     response=500,
-     *     description="Unexpected server error",
-     * )
      */
     public function checkDate(Request $request): Response
     {
@@ -142,14 +135,6 @@ class HolidayController extends AbstractFOSRestController
      *        @OA\JsonContent(
      *          type="integer"
      *      )
-     * )
-     * @OA\Response(
-     *     response=400,
-     *     description="Request data incorrect",
-     * )
-     * @OA\Response(
-     *     response=500,
-     *     description="Unexpected server error",
      * )
      */
     public function getCount(Request $request): Response
