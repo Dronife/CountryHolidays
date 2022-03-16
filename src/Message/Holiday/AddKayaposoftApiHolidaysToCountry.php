@@ -4,7 +4,7 @@ namespace App\Message\Holiday;
 
 use App\Entity\Country;
 
-class AddHolidaysToCountry
+class AddKayaposoftApiHolidaysToCountry
 {
     private int $year;
     private Country $country;

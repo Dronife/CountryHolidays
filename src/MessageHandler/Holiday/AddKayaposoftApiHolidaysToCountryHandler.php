@@ -4,52 +4,49 @@ namespace App\MessageHandler\Holiday;
 
 use App\Entity\Country;
 use App\Factory\HolidayFactory;
-use App\Message\Holiday\AddHolidaysToCountry;
+use App\Message\Holiday\AddKayaposoftApiHolidaysToCountry;
+use App\Message\Holiday\CreateAndAssignHoliday;
 use App\Model\Response\ApiClient\HolidayModel;
 use App\Repository\HolidayRepository;
 use App\Services\ApiRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class AddHolidaysToCountryHandler implements MessageHandlerInterface
+class AddKayaposoftApiHolidaysToCountryHandler implements MessageHandlerInterface
 {
     private string $kayaposoftBaseApiUrl;
     private ApiRequest $apiRequest;
     private HolidayFactory $holidayFactory;
     private EntityManagerInterface $entityManager;
     private HolidayRepository $holidayRepository;
+    private MessageBusInterface $messageBus;
 
     public function __construct(
         string $kayaposoftBaseApiUrl,
         ApiRequest $apiRequest,
         HolidayFactory $holidayFactory,
         HolidayRepository $holidayRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $messageBus
     ) {
         $this->kayaposoftBaseApiUrl = $kayaposoftBaseApiUrl;
         $this->apiRequest = $apiRequest;
         $this->holidayFactory = $holidayFactory;
         $this->entityManager = $entityManager;
         $this->holidayRepository = $holidayRepository;
+        $this->messageBus = $messageBus;
     }
 
-    public function __invoke(AddHolidaysToCountry $addHolidaysToCountry)
+    public function __invoke(AddKayaposoftApiHolidaysToCountry $addHolidaysToCountry)
     {
         $holidayModels = $this->apiRequest->get(
             $this->getHolidayForYearUrl($addHolidaysToCountry->getYear(), $addHolidaysToCountry->getCountry()),
             'array<' . HolidayModel::class . '>'
         );
         foreach ($holidayModels as $holidayModel) {
-            $this->createAndAssignHoliday($holidayModel, $addHolidaysToCountry->getCountry());
+            $this->messageBus->dispatch(new CreateAndAssignHoliday($holidayModel, $addHolidaysToCountry->getCountry()));
         }
-    }
-
-    private function createAndAssignHoliday(HolidayModel $holidayModel, Country $country): void
-    {
-        $holidayEntity = $this->holidayFactory->create($holidayModel);
-        $holiday = $this->holidayRepository->findOneOrCreate($holidayEntity);
-        $country->addHoliday($holiday);
-        $this->entityManager->flush();
     }
 
     private function getHolidayForYearUrl($year, Country $country): string
