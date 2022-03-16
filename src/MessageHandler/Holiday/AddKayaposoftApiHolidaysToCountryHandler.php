@@ -40,6 +40,14 @@ class AddKayaposoftApiHolidaysToCountryHandler implements MessageHandlerInterfac
 
     public function __invoke(AddKayaposoftApiHolidaysToCountry $addHolidaysToCountry)
     {
+        $countryHasHolidays = $this->holidayRepository->countryHasHolidaysByYear(
+            $addHolidaysToCountry->getYear(),
+            $addHolidaysToCountry->getCountry()->getName()
+        );
+        if($countryHasHolidays)
+        {
+            return;
+        }
         $holidayModels = $this->apiRequest->get(
             $this->getHolidayForYearUrl($addHolidaysToCountry->getYear(), $addHolidaysToCountry->getCountry()),
             'array<' . HolidayModel::class . '>'

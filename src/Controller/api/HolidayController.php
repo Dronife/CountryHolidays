@@ -2,21 +2,16 @@
 
 namespace App\Controller\api;
 
-use App\Constants\DateFormat;
-use App\Constants\DateType;
 use App\Form\Type\HolidayRequestCheckDateType;
 use App\Form\Type\HolidayRequestForYearType;
-
-//use App\Interfaces\HolidayApiClientInterface;
 use App\Message\Holiday\AddKayaposoftApiHolidaysToCountry;
-use App\Message\Holiday\CreateAndAssignHoliday;
 use App\Model\Request\Holiday\HolidayRequestCheckDate;
 use App\Model\Request\Holiday\HolidayRequestForYearModel;
 use App\Model\Response\Holiday\HolidayResponseForYearModel;
 use App\Repository\HolidayRepository;
-use App\Services\ApiRequest;
 use App\Services\HolidayApiClientService;
-use Carbon\Carbon;
+use App\Services\HolidayManager;
+use App\Services\LogicHandlers\Holiday\HolidayControllerLogicHandler;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -42,25 +37,25 @@ class HolidayController extends AbstractFOSRestController
 {
     private HolidayApiClientService $holidayApiClientService;
     private SerializerInterface $serializer;
-    /**
-     * @var ApiRequest
-     */
-    private ApiRequest $converterHelper;
     private HolidayRepository $holidayRepository;
     private MessageBusInterface $messageBus;
+    private HolidayManager $holidayManager;
+    private HolidayControllerLogicHandler $controllerLogicHandler;
 
     public function __construct(
         HolidayApiClientService $holidayApiClientService,
         SerializerInterface $serializer,
-        ApiRequest $converterHelper,
         HolidayRepository $holidayRepository,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        HolidayManager $holidayManager,
+        HolidayControllerLogicHandler $controllerLogicHandler
     ) {
         $this->holidayApiClientService = $holidayApiClientService;
         $this->serializer = $serializer;
-        $this->converterHelper = $converterHelper;
         $this->holidayRepository = $holidayRepository;
         $this->messageBus = $messageBus;
+        $this->holidayManager = $holidayManager;
+        $this->controllerLogicHandler = $controllerLogicHandler;
     }
 
     /**
@@ -84,22 +79,16 @@ class HolidayController extends AbstractFOSRestController
         $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $countryHasHolidays = $this->holidayRepository->countryHasHolidaysByYear(
-                $holidayRequestModel->getYear(),
-                $holidayRequestModel->getCountry()->getName()
+            $this->messageBus->dispatch(
+                new AddKayaposoftApiHolidaysToCountry(
+                    $holidayRequestModel->getYear(),
+                    $holidayRequestModel->getCountry()
+                )
             );
-            if (!$countryHasHolidays) {
-                $this->messageBus->dispatch(
-                    new AddKayaposoftApiHolidaysToCountry(
-                        $holidayRequestModel->getYear(),
-                        $holidayRequestModel->getCountry()
-                    )
-                );
-            }
 
             return $this->handleView(
                 $this->view(
-                    $this->holidayApiClientService->getHolidaysByYearAndCountry(
+                    $this->holidayRepository->getHolidaysByYearAndCountryName(
                         $holidayRequestModel->getYear(),
                         $holidayRequestModel->getCountry()
                     ),
@@ -128,37 +117,22 @@ class HolidayController extends AbstractFOSRestController
      *      )
      * )
      */
-    public function checkDate(Request $request): Response
+    public function getDateType(Request $request): Response
     {
         $holidayCheckDateModel = new HolidayRequestCheckDate();
         $form = $this->createForm(HolidayRequestCheckDateType::class, $holidayCheckDateModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $date = $holidayCheckDateModel->getDateByFormat(DateFormat::DATE_FORMAT_HOLIDAY_CHECK_DATE);
-            $country = $holidayCheckDateModel->getCountry();
 
-            if ($this->holidayApiClientService->isHoliday($date, $country)) {
-                return $this->handleView($this->view(DateType::TYPE_HOLIDAY,Response::HTTP_OK));
-            }
-
-            if (!$this->holidayApiClientService->isPublicHoliday($country, $date)) {
-                if ($this->holidayApiClientService->isFreeDay($date)) {
-                    return $this->handleView($this->view(DateType::TYPE_FREE_DAY,Response::HTTP_OK));
-                }
-                return $this->handleView($this->view(DateType::TYPE_WORKDAY,Response::HTTP_OK));
-            }
-
-            $this->messageBus->dispatch(
-                new CreateAndAssignHoliday(
-                    $this->holidayApiClientService->getOneHolidayModel($country, $date),
-                    $country
+            return $this->handleView(
+                $this->view(
+                    $this->controllerLogicHandler->getDateTypeAndSaveHoliday($holidayCheckDateModel),
+                    Response::HTTP_OK
                 )
             );
-
-            return $this->handleView($this->view(DateType::TYPE_HOLIDAY,Response::HTTP_OK));
         }
 
-        return $this->handleView($this->view([$form->getErrors()], Response::HTTP_BAD_REQUEST));
+        return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
     }
 
     /**
@@ -178,23 +152,32 @@ class HolidayController extends AbstractFOSRestController
      *      )
      * )
      */
-//    public function getCount(Request $request): Response
-//    {
-//        $holidayRequestModel = new HolidayRequestForYearModel();
-//        $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
-//        $form->handleRequest($request);
-//        if ($form->isSubmitted() && $form->isValid()) {
-//            return $this->handleView(
-//                $this->view(
-//                    $this->holidayApiClientService->getCountOfFreeDaysAndHolidays(
-//                        $holidayRequestModel->getYear(),
-//                        $holidayRequestModel->getCountry()
-//                    )
-//                    ,
-//                    200
-//                )
-//            );
-//        }
-//        return $this->handleView($this->view([$form->getErrors()], 400));
-//    }
+    public function getMaxFreeDaysCountInRow(Request $request): Response
+    {
+        $holidayRequestModel = new HolidayRequestForYearModel();
+        $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->messageBus->dispatch(
+                new AddKayaposoftApiHolidaysToCountry(
+                    $holidayRequestModel->getYear(),
+                    $holidayRequestModel->getCountry()
+                )
+            );
+
+            $holidays = $this->holidayRepository->getHolidaysByYearAndCountryName(
+                $holidayRequestModel->getYear(),
+                $holidayRequestModel->getCountry()->getName()
+            );
+
+            return $this->handleView(
+                $this->view(
+                    $this->holidayManager->getCountedFreeDays($holidays)
+                    ,
+                    200
+                )
+            );
+        }
+        return $this->handleView($this->view([$form->getErrors()], 400));
+    }
 }

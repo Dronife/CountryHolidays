@@ -2,7 +2,7 @@
 
 namespace App\Model\Response\ApiClient;
 
-class DayPublicHoliday
+class IsPublicHolidayModel
 {
     private bool $isPublicHoliday;
 
