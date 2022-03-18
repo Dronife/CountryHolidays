@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Model\Response\ApiClient;
+namespace App\Model\Response\KayaposoftApi;
 
 use App\Model\Holiday\Date;
 use App\Model\Holiday\Name;
 use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
 
-class HolidayModel
+class HolidayModel implements KayaposoftApiModelInterface
 {
 
     private Date $date;

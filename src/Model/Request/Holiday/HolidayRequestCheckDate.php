@@ -5,13 +5,11 @@ namespace App\Model\Request\Holiday;
 use App\Entity\Country;
 use DateTimeInterface;
 
-class HolidayRequestCheckDate
+class HolidayRequestCheckDate implements HolidayRequestInterface
 {
 
     private DateTimeInterface $date;
     private Country $country;
-
-
 
     /**
      * @return DateTimeInterface

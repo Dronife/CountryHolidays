@@ -4,7 +4,7 @@ namespace App\MessageHandler\Country;
 
 use App\Factory\CountryFactory;
 use App\Message\Country\AddCountries;
-use App\Model\Response\ApiClient\CountryModel;
+use App\Model\Response\KayaposoftApi\CountryModel;
 use App\Repository\CountryRepository;
 use App\Services\ApiRequest;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;

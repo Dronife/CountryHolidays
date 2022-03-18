@@ -6,7 +6,7 @@ use App\Entity\Country;
 use App\Factory\HolidayFactory;
 use App\Message\Holiday\AddKayaposoftApiHolidaysToCountry;
 use App\Message\Holiday\CreateAndAssignHoliday;
-use App\Model\Response\ApiClient\HolidayModel;
+use App\Model\Response\KayaposoftApi\HolidayModel;
 use App\Repository\HolidayRepository;
 use App\Services\ApiRequest;
 use Doctrine\ORM\EntityManagerInterface;

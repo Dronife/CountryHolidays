@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model\Response\ApiClient;
+namespace App\Model\Response\KayaposoftApi;
 
-class CountryModel
+class CountryModel implements KayaposoftApiModelInterface
 {
 
     private string $fullName;

@@ -3,7 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Holiday;
-use App\Model\Response\ApiClient\HolidayModel;
+use App\Model\Response\KayaposoftApi\HolidayModel;
 
 class HolidayFactory
 {

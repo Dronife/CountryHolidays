@@ -3,14 +3,16 @@
 namespace App\Message\Holiday;
 
 use App\Entity\Country;
-use App\Model\Response\ApiClient\HolidayModel;
+use App\Model\Response\KayaposoftApi\HolidayModel;
+use App\Model\Response\KayaposoftApi\KayaposoftApiModelInterface;
 
 class CreateAndAssignHoliday
 {
-    private HolidayModel $holidayModel;
+    /**@var HolidayModel**/
+    private KayaposoftApiModelInterface $holidayModel;
     private Country $country;
 
-    public function __construct(HolidayModel $holidayModel, Country $country)
+    public function __construct(KayaposoftApiModelInterface $holidayModel, Country $country)
     {
         $this->holidayModel = $holidayModel;
         $this->country = $country;

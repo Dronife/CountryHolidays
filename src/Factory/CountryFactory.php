@@ -3,7 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Country;
-use App\Model\Response\ApiClient\CountryModel;
+use App\Model\Response\KayaposoftApi\CountryModel;
 
 class CountryFactory
 {

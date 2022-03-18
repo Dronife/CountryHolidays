@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model\Response\ApiClient;
+namespace App\Model\Response\KayaposoftApi;
 
-class IsPublicHolidayModel
+class IsPublicHolidayModel implements KayaposoftApiModelInterface
 {
     private bool $isPublicHoliday;
 
