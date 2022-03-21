@@ -32,11 +32,11 @@ class HolidayApiClientService
     }
 
 
-    public function getOneHolidayModel(Country $country, string $date): HolidayModel
-    {
-        return $this->apiRequest
-            ->get($this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
-    }
+//    public function getOneHolidayModel(Country $country, string $date): HolidayModel
+//    {
+//        return $this->apiRequest
+//            ->get($this->getUrlForSpecificHolidayDate($country, $date), 'array<' . HolidayModel::class . '>')[0];
+//    }
 
 
     public function isFreeDay(string $date): bool
@@ -54,16 +54,16 @@ class HolidayApiClientService
         );
     }
 
-    public function getUrlForSpecificHolidayDate(Country $country, string $date): string
-    {
-        return sprintf(
-            '%sgetHolidaysForDateRange&fromDate=%s&toDate=%s&country=%s',
-            $this->kayaposoftBaseApiUrl,
-            $date,
-            $date,
-            $country->getCountryCode()
-        );
-    }
+//    public function getUrlForSpecificHolidayDate(Country $country, string $date): string
+//    {
+//        return sprintf(
+//            '%sgetHolidaysForDateRange&fromDate=%s&toDate=%s&country=%s',
+//            $this->kayaposoftBaseApiUrl,
+//            $date,
+//            $date,
+//            $country->getCountryCode()
+//        );
+//    }
 
     public function isPublicHoliday(Country $country, string $date): bool
     {
