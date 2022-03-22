@@ -3,15 +3,33 @@
 namespace App\Services;
 
 use App\Entity\Holiday;
+use App\Factory\Model\HolidayRequestCheckDateModelFactory;
+use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
+use App\Model\Request\Holiday\HolidayRequestForYearModel;
+use App\Request\Kayaposoft\IsWorkDayRequest;
 use Carbon\Carbon;
+use DateTime;
 
 class HolidayManager
 {
+    private const COUNT_FORWARD = 1;
+    private const COUNT_BACKWARDS = 0;
+    private IsWorkDayRequest $isWorkDayRequest;
+    private HolidayRequestCheckDateModelFactory $checkDateModelFactory;
+
+    public function __construct(
+        IsWorkDayRequest $isWorkDayRequest,
+        HolidayRequestCheckDateModelFactory $checkDateModelFactory
+    ) {
+        $this->isWorkDayRequest = $isWorkDayRequest;
+        $this->checkDateModelFactory = $checkDateModelFactory;
+    }
+
     /**
      * @param Holiday[] $holidays
      * @return int
      */
-    public function getCountedFreeDays(array $holidays): int
+    public function getCountedFreeDays(array $holidays, HolidayRequestForYearModel $holidayRequestForYearModel): int
     {
         $maxFreeDays = 0;
         $count = 0;
@@ -47,22 +65,45 @@ class HolidayManager
                 $count = 0;
             }
         }
-        $continueToCountWeekendForward = true;
-        $continueToCountWeekendBackward = true;
-        for ($i = 0; $i < 2; $i++) {
-            if ($streakStartDate->subDay(1)->isWeekend() && $continueToCountWeekendBackward) {
-                $count++;
-            } else {
-                $continueToCountWeekendBackward = false;
-            }
 
-            if ($streakEndDate->addDay()->isWeekend() && $continueToCountWeekendForward) {
-                $count++;
-            } else {
-                $continueToCountWeekendForward = false;
-            }
+        return $this->countWeekend($holidayRequestForYearModel, $streakStartDate, $streakEndDate) + $maxFreeDays;
+    }
+
+
+    private function countWeekend(
+        HolidayRequestForYearModel $holidayRequestForYearModel,
+        DateTime $streakStartDate,
+        DateTime $streakEndDate
+    ): int {
+        $checkStartDateModel = $this->checkDateModelFactory->create(
+            $holidayRequestForYearModel->getCountry(),
+            $streakStartDate
+        );
+
+        $checkEndDateModel = $this->checkDateModelFactory->create(
+            $holidayRequestForYearModel->getCountry(),
+            $streakEndDate
+        );
+
+        return $this->abstractWeekendCounter($checkEndDateModel, 0, self::COUNT_FORWARD)
+            + $this->abstractWeekendCounter($checkStartDateModel, 0, self::COUNT_BACKWARDS);
+    }
+
+    private function abstractWeekendCounter(
+        HolidayRequestCheckDateModel $checkDateModel,
+        int $freeDays,
+        int $direction
+    ): int {
+        if ($this->isWorkDayRequest->getModel($checkDateModel)->isWorkDay()) {
+            return $freeDays;
         }
-
-        return $count + $maxFreeDays;
+        $date = $checkDateModel->getDate();
+        ($direction === self::COUNT_BACKWARDS)
+            ? $checkDateModel->setDate(Carbon::parse($date)->subDay(1))
+            : $checkDateModel->setDate(Carbon::parse($date)->addDay());
+        if (!$this->isWorkDayRequest->getModel($checkDateModel)->isWorkDay()) {
+            $freeDays = $this->abstractWeekendCounter($checkDateModel, $freeDays + 1, $direction);
+        }
+        return $freeDays;
     }
 }

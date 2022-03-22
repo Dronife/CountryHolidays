@@ -4,7 +4,7 @@ namespace App\Request\Kayaposoft;
 
 use App\Constants\DateFormat;
 use App\Entity\Country;
-use App\Model\Request\Holiday\HolidayRequestCheckDate;
+use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
 use App\Model\Request\Holiday\HolidayRequestInterface;
 use App\Model\Response\KayaposoftApi\HolidayModel;
 use App\Model\Response\KayaposoftApi\KayaposoftApiModelInterface;
@@ -22,7 +22,7 @@ class HolidaysForDateRangeRequest implements KayaposoftApiRequestInterface
     }
 
     /**
-     * @param HolidayRequestCheckDate $holidayRequest
+     * @param HolidayRequestCheckDateModel $holidayRequest
      * @return HolidayModel
      **/
     public function getModel(HolidayRequestInterface $holidayRequest): KayaposoftApiModelInterface

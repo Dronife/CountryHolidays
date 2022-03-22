@@ -5,11 +5,11 @@ namespace App\Controller\api;
 use App\Form\Type\HolidayRequestCheckDateType;
 use App\Form\Type\HolidayRequestForYearType;
 use App\Message\Holiday\AddKayaposoftApiHolidaysToCountry;
-use App\Model\Request\Holiday\HolidayRequestCheckDate;
+use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
 use App\Model\Request\Holiday\HolidayRequestForYearModel;
 use App\Model\Response\Holiday\HolidayResponseForYearModel;
 use App\Repository\HolidayRepository;
-use App\Services\HolidayApiClientService;
+//use App\Services\HolidayApiClientService;
 use App\Services\HolidayManager;
 use App\Services\LogicHandlers\Holiday\HolidayControllerLogicHandler;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -35,7 +35,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class HolidayController extends AbstractFOSRestController
 {
-    private HolidayApiClientService $holidayApiClientService;
     private SerializerInterface $serializer;
     private HolidayRepository $holidayRepository;
     private MessageBusInterface $messageBus;
@@ -43,14 +42,12 @@ class HolidayController extends AbstractFOSRestController
     private HolidayControllerLogicHandler $controllerLogicHandler;
 
     public function __construct(
-        HolidayApiClientService $holidayApiClientService,
         SerializerInterface $serializer,
         HolidayRepository $holidayRepository,
         MessageBusInterface $messageBus,
         HolidayManager $holidayManager,
         HolidayControllerLogicHandler $controllerLogicHandler
     ) {
-        $this->holidayApiClientService = $holidayApiClientService;
         $this->serializer = $serializer;
         $this->holidayRepository = $holidayRepository;
         $this->messageBus = $messageBus;
@@ -119,7 +116,7 @@ class HolidayController extends AbstractFOSRestController
      */
     public function getDateType(Request $request): Response
     {
-        $holidayCheckDateModel = new HolidayRequestCheckDate();
+        $holidayCheckDateModel = new HolidayRequestCheckDateModel();
         $form = $this->createForm(HolidayRequestCheckDateType::class, $holidayCheckDateModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -172,7 +169,7 @@ class HolidayController extends AbstractFOSRestController
 
             return $this->handleView(
                 $this->view(
-                    $this->holidayManager->getCountedFreeDays($holidays)
+                    $this->holidayManager->getCountedFreeDays($holidays, $holidayRequestModel)
                     ,
                     200
                 )

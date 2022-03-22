@@ -4,7 +4,7 @@ namespace App\Request\Kayaposoft;
 
 use App\Constants\DateFormat;
 use App\Entity\Country;
-use App\Model\Request\Holiday\HolidayRequestCheckDate;
+use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
 use App\Model\Request\Holiday\HolidayRequestInterface;
 use App\Model\Response\KayaposoftApi\IsPublicHolidayModel;
 use App\Model\Response\KayaposoftApi\IsWorkDayModel;
@@ -23,7 +23,7 @@ class IsWorkDayRequest implements KayaposoftApiRequestInterface
     }
 
     /**
-     * @param HolidayRequestCheckDate $holidayRequest
+     * @param HolidayRequestCheckDateModel $holidayRequest
      * @return IsWorkDayModel
      **/
     public function getModel(HolidayRequestInterface $holidayRequest): KayaposoftApiModelInterface
