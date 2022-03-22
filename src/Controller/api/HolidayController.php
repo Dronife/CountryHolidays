@@ -2,6 +2,7 @@
 
 namespace App\Controller\api;
 
+use App\Factory\Error\ErrorResponseFactory;
 use App\Form\Type\HolidayRequestCheckDateType;
 use App\Form\Type\HolidayRequestForYearType;
 use App\Message\Holiday\AddKayaposoftApiHolidaysToCountry;
@@ -9,6 +10,7 @@ use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
 use App\Model\Request\Holiday\HolidayRequestForYearModel;
 use App\Model\Response\Holiday\HolidayResponseForYearModel;
 use App\Repository\HolidayRepository;
+
 //use App\Services\HolidayApiClientService;
 use App\Services\HolidayManager;
 use App\Services\LogicHandlers\Holiday\HolidayControllerLogicHandler;
@@ -40,19 +42,22 @@ class HolidayController extends AbstractFOSRestController
     private MessageBusInterface $messageBus;
     private HolidayManager $holidayManager;
     private HolidayControllerLogicHandler $controllerLogicHandler;
+    private ErrorResponseFactory $errorResponseFactory;
 
     public function __construct(
         SerializerInterface $serializer,
         HolidayRepository $holidayRepository,
         MessageBusInterface $messageBus,
         HolidayManager $holidayManager,
-        HolidayControllerLogicHandler $controllerLogicHandler
+        HolidayControllerLogicHandler $controllerLogicHandler,
+        ErrorResponseFactory $errorResponseFactory
     ) {
         $this->serializer = $serializer;
         $this->holidayRepository = $holidayRepository;
         $this->messageBus = $messageBus;
         $this->holidayManager = $holidayManager;
         $this->controllerLogicHandler = $controllerLogicHandler;
+        $this->errorResponseFactory = $errorResponseFactory;
     }
 
     /**
@@ -93,8 +98,12 @@ class HolidayController extends AbstractFOSRestController
                 )
             );
         }
-        return $this->handleView($this->view([$form->getErrors()]));
-    }
+        return $this->handleView(
+            $this->view(
+                $this->errorResponseFactory->createWithFormError($form),
+                Response::HTTP_BAD_REQUEST
+            )
+        );    }
 
     /**
      * @Route("/checkDate",
@@ -120,7 +129,6 @@ class HolidayController extends AbstractFOSRestController
         $form = $this->createForm(HolidayRequestCheckDateType::class, $holidayCheckDateModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
             return $this->handleView(
                 $this->view(
                     $this->controllerLogicHandler->getDateTypeAndSaveHoliday($holidayCheckDateModel),
@@ -129,8 +137,12 @@ class HolidayController extends AbstractFOSRestController
             );
         }
 
-        return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
-    }
+        return $this->handleView(
+            $this->view(
+                $this->errorResponseFactory->createWithFormError($form),
+                Response::HTTP_BAD_REQUEST
+            )
+        );    }
 
     /**
      * @Route("/getCount", methods={"post"},
@@ -175,6 +187,12 @@ class HolidayController extends AbstractFOSRestController
                 )
             );
         }
-        return $this->handleView($this->view([$form->getErrors()], 400));
+        return $this->handleView(
+            $this->view(
+                $this->errorResponseFactory->createWithFormError($form),
+                Response::HTTP_BAD_REQUEST
+            )
+        );
+//        return $this->handleView($this->view([$form->getErrors()], 400));
     }
 }
