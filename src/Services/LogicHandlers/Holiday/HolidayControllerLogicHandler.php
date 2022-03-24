@@ -4,34 +4,32 @@ namespace App\Services\LogicHandlers\Holiday;
 
 use App\Constants\DateFormat;
 use App\Constants\DateType;
-use App\Factory\KayaposoftApi\KayaposoftRequestFactory;
 use App\Message\Holiday\CreateAndAssignHoliday;
 use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
-use App\Request\Kayaposoft\HolidaysForDateRangeRequest;
-use App\Request\Kayaposoft\IsPublicHolidayRequest;
-use App\Request\Kayaposoft\IsWorkDayRequest;
+use App\Model\Response\KayaposoftApi\HolidayModel;
+use App\Model\Response\KayaposoftApi\IsPublicHolidayModel;
+use App\Model\Response\KayaposoftApi\IsWorkDayModel;
+use App\Request\KayaposoftApi\HolidayForDateRangeRequest;
+use App\Request\KayaposoftApi\IsPublicHolidayRequest;
+use App\Request\KayaposoftApi\IsWorkDayRequest;
+use App\Services\ApiClient;
+use App\Strategy\KayaposoftApiRequestStrategy;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class HolidayControllerLogicHandler
 {
     private MessageBusInterface $messageBus;
-    private KayaposoftRequestFactory $kayaposoftRequestFactory;
-    private HolidaysForDateRangeRequest $holidaysForDateRangeRequest;
-    private IsPublicHolidayRequest $isPublicHolidayRequest;
-    private IsWorkDayRequest $isWorkDayRequest;
+    private KayaposoftApiRequestStrategy $apiRequestStrategy;
+    private ApiClient $apiClient;
 
     public function __construct(
         MessageBusInterface $messageBus,
-        KayaposoftRequestFactory $kayaposoftRequestFactory,
-        HolidaysForDateRangeRequest $holidaysForDateRangeRequest,
-        IsPublicHolidayRequest $isPublicHolidayRequest,
-        IsWorkDayRequest $isWorkDayRequest
+        KayaposoftApiRequestStrategy $apiRequestStrategy,
+        ApiClient $apiClient
     ) {
         $this->messageBus = $messageBus;
-        $this->kayaposoftRequestFactory = $kayaposoftRequestFactory;
-        $this->holidaysForDateRangeRequest = $holidaysForDateRangeRequest;
-        $this->isPublicHolidayRequest = $isPublicHolidayRequest;
-        $this->isWorkDayRequest = $isWorkDayRequest;
+        $this->apiRequestStrategy = $apiRequestStrategy;
+        $this->apiClient = $apiClient;
     }
 
     public function getDateTypeAndSaveHoliday(HolidayRequestCheckDateModel $holidayCheckDateModel): string
@@ -42,16 +40,30 @@ class HolidayControllerLogicHandler
         if ($country->getHolidayByDate($date) !== null) {
             return DateType::TYPE_HOLIDAY;
         }
-        if (!$this->isPublicHolidayRequest->getModel($holidayCheckDateModel)->isPublicHoliday()) {
-            if (!$this->isWorkDayRequest->getModel($holidayCheckDateModel)->isWorkDay()) {
+
+        /**
+         * @var IsPublicHolidayModel $isPublicHoliday
+         */
+        $isPublicHoliday = $this->apiClient->request(new IsPublicHolidayRequest($country, $date));
+        if (!$isPublicHoliday->isPublicHoliday()) {
+
+            /**
+             * @var IsWorkDayModel $isPublicHoliday
+             */
+            $isPublicHoliday = $this->apiClient->request(new IsWorkDayRequest($country, $date));
+            if (!$isPublicHoliday->isWorkDay()) {
                 return DateType::TYPE_FREE_DAY;
             }
             return DateType::TYPE_WORKDAY;
         }
 
+        /**
+         * @var HolidayModel $holiday
+         */
+        $holiday = $this->apiClient->arrayRequest(new HolidayForDateRangeRequest($date, $date, $country))[0];
         $this->messageBus->dispatch(
             new CreateAndAssignHoliday(
-                $this->holidaysForDateRangeRequest->getModel($holidayCheckDateModel),
+                $holiday,
                 $country
             )
         );
