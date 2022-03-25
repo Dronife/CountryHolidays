@@ -4,7 +4,7 @@ namespace App\Model\Request\Holiday;
 
 use App\Entity\Country;
 use DateTimeInterface;
-
+// TODO: cia reiketu padryt, kad butu gaunama start ir end dates
 class HolidayRequestCheckDateModel implements HolidayRequestInterface
 {
 

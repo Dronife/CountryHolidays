@@ -6,7 +6,8 @@ use App\Entity\Holiday;
 use App\Factory\Model\HolidayRequestCheckDateModelFactory;
 use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
 use App\Model\Request\Holiday\HolidayRequestForYearModel;
-use App\Request\Kayaposoft\IsWorkDayRequest;
+use App\Model\Response\KayaposoftApi\IsWorkDayModel;
+use App\Request\KayaposoftApi\IsWorkDayRequest;
 use Carbon\Carbon;
 use DateTime;
 
@@ -14,15 +15,15 @@ class HolidayManager
 {
     private const COUNT_FORWARD = 1;
     private const COUNT_BACKWARDS = 0;
-    private IsWorkDayRequest $isWorkDayRequest;
     private HolidayRequestCheckDateModelFactory $checkDateModelFactory;
+    private ApiClient $apiClient;
 
     public function __construct(
-        IsWorkDayRequest $isWorkDayRequest,
-        HolidayRequestCheckDateModelFactory $checkDateModelFactory
+        HolidayRequestCheckDateModelFactory $checkDateModelFactory,
+        ApiClient $apiClient
     ) {
-        $this->isWorkDayRequest = $isWorkDayRequest;
         $this->checkDateModelFactory = $checkDateModelFactory;
+        $this->apiClient = $apiClient;
     }
 
     /**
@@ -94,14 +95,19 @@ class HolidayManager
         int $freeDays,
         int $direction
     ): int {
-        if ($this->isWorkDayRequest->getModel($checkDateModel)->isWorkDay()) {
+        /**@var IsWorkDayModel $isWorkDayModel**/
+        $isWorkDayModel = $this->apiClient->request(new IsWorkDayRequest($checkDateModel));
+        if ($isWorkDayModel->isWorkDay()) {
             return $freeDays;
         }
         $date = $checkDateModel->getDate();
         ($direction === self::COUNT_BACKWARDS)
             ? $checkDateModel->setDate(Carbon::parse($date)->subDay(1))
             : $checkDateModel->setDate(Carbon::parse($date)->addDay());
-        if (!$this->isWorkDayRequest->getModel($checkDateModel)->isWorkDay()) {
+
+        /**@var IsWorkDayModel $isWorkDayModel**/
+        $isWorkDayModel = $this->apiClient->request(new IsWorkDayRequest($checkDateModel));
+        if (!$isWorkDayModel->isWorkDay()) {
             $freeDays = $this->abstractWeekendCounter($checkDateModel, $freeDays + 1, $direction);
         }
         return $freeDays;

@@ -20,22 +20,14 @@ class ApiClient
 
     public function request(AbstractKaiaposoftApiRequest $kayaposoftApiRequest) : KayaposoftApiModelInterface
     {
-        return $this->serializer->deserialize($this->getResponse($kayaposoftApiRequest), $kayaposoftApiRequest->getResponseClass(), 'json');
-    }
-
-    /**
-     * @return KayaposoftApiModelInterface[]
-     */
-    public function arrayRequest(AbstractKaiaposoftApiRequest $kayaposoftApiRequest) : array
-    {
-        return $this->serializer->deserialize($this->getResponse($kayaposoftApiRequest), $kayaposoftApiRequest->getResponseClass(), 'json');
-    }
-
-    private function getResponse(AbstractKaiaposoftApiRequest $kayaposoftApiRequest) : string
-    {
         $requestType = $kayaposoftApiRequest->getHttpRequestType();
+        $responseClass = $kayaposoftApiRequest->getResponseClass();
         $url = $kayaposoftApiRequest->getUrl();
 
-        return $this->client->request($requestType, $url)->getContent();
+        $response = $this->client->request($requestType, $url)->getContent();
+
+        dump($kayaposoftApiRequest);
+        dump($response);
+        return $this->serializer->deserialize($response, $responseClass, 'json');
     }
 }
