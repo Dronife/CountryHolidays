@@ -4,12 +4,12 @@ namespace App\Request\KayaposoftApi;
 
 use App\Constants\DateFormat;
 use App\Entity\Country;
-use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
+use App\Model\Request\Holiday\HolidayRequestDateModel;
 use App\Model\Response\KayaposoftApi\IsWorkDayModel;
 
 class IsWorkDayRequest extends AbstractKaiaposoftApiRequest
 {
-    public function __construct(HolidayRequestCheckDateModel $holidayRequestCheckDateModel)
+    public function __construct(HolidayRequestDateModel $holidayRequestCheckDateModel)
     {
         parent::__construct();
         $this->setResponseClass(IsWorkDayModel::class);

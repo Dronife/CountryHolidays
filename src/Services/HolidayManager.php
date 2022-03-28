@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Entity\Holiday;
 use App\Factory\Model\HolidayRequestCheckDateModelFactory;
-use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
-use App\Model\Request\Holiday\HolidayRequestForYearModel;
+use App\Model\Request\Holiday\HolidayRequestDateModel;
+use App\Model\Request\Holiday\HolidayRequestYearModel;
 use App\Model\Response\KayaposoftApi\IsWorkDayModel;
 use App\Request\KayaposoftApi\IsWorkDayRequest;
 use Carbon\Carbon;
@@ -30,7 +30,7 @@ class HolidayManager
      * @param Holiday[] $holidays
      * @return int
      */
-    public function getCountedFreeDays(array $holidays, HolidayRequestForYearModel $holidayRequestForYearModel): int
+    public function getCountedFreeDays(array $holidays, HolidayRequestYearModel $holidayRequestForYearModel): int
     {
         $maxFreeDays = 0;
         $count = 0;
@@ -72,7 +72,7 @@ class HolidayManager
 
 
     private function countWeekend(
-        HolidayRequestForYearModel $holidayRequestForYearModel,
+        HolidayRequestYearModel $holidayRequestForYearModel,
         DateTime $streakStartDate,
         DateTime $streakEndDate
     ): int {
@@ -91,7 +91,7 @@ class HolidayManager
     }
 
     private function abstractWeekendCounter(
-        HolidayRequestCheckDateModel $checkDateModel,
+        HolidayRequestDateModel $checkDateModel,
         int $freeDays,
         int $direction
     ): int {

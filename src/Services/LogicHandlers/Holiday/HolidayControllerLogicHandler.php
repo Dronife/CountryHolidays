@@ -4,8 +4,9 @@ namespace App\Services\LogicHandlers\Holiday;
 
 use App\Constants\DateFormat;
 use App\Constants\DateType;
+use App\Factory\Model\HolidayWithDateRangeFactory;
 use App\Message\Holiday\CreateAndAssignHoliday;
-use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
+use App\Model\Request\Holiday\HolidayRequestDateModel;
 use App\Model\Response\KayaposoftApi\HolidayDateRangeModel;
 use App\Model\Response\KayaposoftApi\HolidayModel;
 use App\Model\Response\KayaposoftApi\IsPublicHolidayModel;
@@ -20,16 +21,19 @@ class HolidayControllerLogicHandler
 {
     private MessageBusInterface $messageBus;
     private ApiClient $apiClient;
+    private HolidayWithDateRangeFactory $holidayWithDateRangeFactory;
 
     public function __construct(
         MessageBusInterface $messageBus,
-        ApiClient $apiClient
+        ApiClient $apiClient,
+        HolidayWithDateRangeFactory $holidayWithDateRangeFactory
     ) {
         $this->messageBus = $messageBus;
         $this->apiClient = $apiClient;
+        $this->holidayWithDateRangeFactory = $holidayWithDateRangeFactory;
     }
 
-    public function getDateTypeAndSaveHoliday(HolidayRequestCheckDateModel $holidayCheckDateModel): string
+    public function getDateTypeAndSaveHoliday(HolidayRequestDateModel $holidayCheckDateModel): string
     {
         $date = $holidayCheckDateModel->getDateByFormat(DateFormat::DATE_FORMAT_HOLIDAY_CHECK_DATE);
         $country = $holidayCheckDateModel->getCountry();
@@ -52,12 +56,12 @@ class HolidayControllerLogicHandler
             return DateType::TYPE_WORKDAY;
         }
 
+        $holidayDateWithRange = $this->holidayWithDateRangeFactory->create($holidayCheckDateModel);
+
         /**
          * @var HolidayDateRangeModel $holidays
          */
-        $holidays = $this->apiClient->request(new HolidayForDateRangeRequest($holidayCheckDateModel));
-
-        dump($holidays);
+        $holidays = $this->apiClient->request(new HolidayForDateRangeRequest($holidayDateWithRange));
         $this->messageBus->dispatch(
             new CreateAndAssignHoliday(
                 $holidays->getFirst(),

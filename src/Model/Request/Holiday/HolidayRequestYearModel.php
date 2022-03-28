@@ -4,7 +4,7 @@ namespace App\Model\Request\Holiday;
 
 use App\Entity\Country;
 
-class HolidayRequestForYearModel implements HolidayRequestInterface
+class HolidayRequestYearModel implements HolidayRequestInterface
 {
     private int $year;
     private Country $country;

@@ -4,7 +4,7 @@ namespace App\Form\Type;
 
 
 use App\Form\Transformer\CountryTransformer;
-use App\Model\Request\Holiday\HolidayRequestForYearModel;
+use App\Model\Request\Holiday\HolidayRequestYearModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -58,7 +58,7 @@ class HolidayRequestForYearType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => HolidayRequestForYearModel::class,
+                'data_class' => HolidayRequestYearModel::class,
                 'csrf_protection' => false,
                 'allow_extra_fields' => true,
 

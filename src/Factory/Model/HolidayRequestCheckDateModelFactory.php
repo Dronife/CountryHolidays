@@ -2,13 +2,13 @@
 
 namespace App\Factory\Model;
 
-use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
+use App\Model\Request\Holiday\HolidayRequestDateModel;
 
 class HolidayRequestCheckDateModelFactory
 {
-    public function create($country, $date) : HolidayRequestCheckDateModel
+    public function create($country, $date) : HolidayRequestDateModel
     {
-        $countryDateTypeModel = (new HolidayRequestCheckDateModel());
+        $countryDateTypeModel = (new HolidayRequestDateModel());
         $countryDateTypeModel->setCountry($country);
         $countryDateTypeModel->setDate($date);
         return $countryDateTypeModel;

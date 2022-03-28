@@ -3,7 +3,7 @@
 namespace App\Form\Type;
 
 use App\Form\Transformer\CountryTransformer;
-use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
+use App\Model\Request\Holiday\HolidayRequestDateModel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -48,7 +48,7 @@ class HolidayRequestCheckDateType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => HolidayRequestCheckDateModel::class,
+                'data_class' => HolidayRequestDateModel::class,
                 'csrf_protection' => false,
             ]
         );

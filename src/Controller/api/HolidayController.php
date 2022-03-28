@@ -6,8 +6,8 @@ use App\Factory\Error\ErrorResponseFactory;
 use App\Form\Type\HolidayRequestCheckDateType;
 use App\Form\Type\HolidayRequestForYearType;
 use App\Message\Holiday\AddKayaposoftApiHolidaysToCountry;
-use App\Model\Request\Holiday\HolidayRequestCheckDateModel;
-use App\Model\Request\Holiday\HolidayRequestForYearModel;
+use App\Model\Request\Holiday\HolidayRequestDateModel;
+use App\Model\Request\Holiday\HolidayRequestYearModel;
 use App\Model\Response\Holiday\HolidayResponseForYearModel;
 use App\Repository\HolidayRepository;
 
@@ -77,7 +77,7 @@ class HolidayController extends AbstractFOSRestController
      */
     public function holidays(Request $request): Response
     {
-        $holidayRequestModel = new HolidayRequestForYearModel();
+        $holidayRequestModel = new HolidayRequestYearModel();
         $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -125,7 +125,7 @@ class HolidayController extends AbstractFOSRestController
      */
     public function getDateType(Request $request): Response
     {
-        $holidayCheckDateModel = new HolidayRequestCheckDateModel();
+        $holidayCheckDateModel = new HolidayRequestDateModel();
         $form = $this->createForm(HolidayRequestCheckDateType::class, $holidayCheckDateModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -163,7 +163,7 @@ class HolidayController extends AbstractFOSRestController
      */
     public function getMaxFreeDaysCountInRow(Request $request): Response
     {
-        $holidayRequestModel = new HolidayRequestForYearModel();
+        $holidayRequestModel = new HolidayRequestYearModel();
         $form = $this->createForm(HolidayRequestForYearType::class, $holidayRequestModel);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
