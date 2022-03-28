@@ -4,27 +4,32 @@ namespace App\Model\Response\KayaposoftApi;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Annotation as JMS;
-class HolidayDateRangeModel implements KayaposoftApiModelInterface
+class HolidayDateRangeModel extends AbstractArrayModel
 {
-    /**
-     * @JMS\Type("array<HolidayModel>")
-     **/
-    private array $data;
+    private array $holidayModels;
+
+    public function __construct(){
+        parent::__construct();
+    }
 
     /**
      * @return HolidayModel[]
      */
     public function getHolidayModels(): array
     {
-        return $this->data;
+        return $this->holidayModels;
     }
 
     /**
-     * @param HolidayModel[] $holidayModels
+     * @param HolidayModel[] $objectCollection
      */
-    public function setHolidayModels(array $holidayModels): void
+    public function setArray(array $objectCollection)
     {
+        $this->holidayModels = $objectCollection;
+    }
 
-        $this->data = $holidayModels;
+    public function getFirst() : ?HolidayModel
+    {
+        return count($this->holidayModels) > 0 ? $this->holidayModels[0] : null;
     }
 }

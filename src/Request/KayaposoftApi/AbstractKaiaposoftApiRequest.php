@@ -7,6 +7,8 @@ abstract class AbstractKaiaposoftApiRequest implements KayaposoftApiRequestInter
     private string $url;
     private string $httpRequestType;
     private string $responseClass;
+    private bool $objectConvertableToArrayVariable = false;
+    private string $arrayObjectClass = "";
 
     public function __construct()
     {
@@ -58,5 +60,37 @@ abstract class AbstractKaiaposoftApiRequest implements KayaposoftApiRequestInter
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getArrayObjectClass(): string
+    {
+        return $this->arrayObjectClass;
+    }
+
+    /**
+     * @param string $arrayObjectClass
+     */
+    public function setArrayObjectClass(string $arrayObjectClass): void
+    {
+        $this->arrayObjectClass = $arrayObjectClass;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isObjectConvertableToArrayVariable(): bool
+    {
+        return $this->objectConvertableToArrayVariable;
+    }
+
+    /**
+     * @param bool $objectConvertableToArrayVariable
+     */
+    public function setObjectConvertableToArrayVariable(bool $objectConvertableToArrayVariable): void
+    {
+        $this->objectConvertableToArrayVariable = $objectConvertableToArrayVariable;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Factory\Model\KayaposoftModelWithUnnamedArrayFactory;
+use App\Model\Response\KayaposoftApi\AbstractArrayModel;
 use App\Model\Response\KayaposoftApi\KayaposoftApiModelInterface;
 use App\Request\KayaposoftApi\AbstractKaiaposoftApiRequest;
 use JMS\Serializer\SerializerInterface;
@@ -11,23 +13,35 @@ class ApiClient
 {
     private SerializerInterface $serializer;
     private HttpClientInterface $client;
+    private KayaposoftModelWithUnnamedArrayFactory $kayaposoftModelWithUnnamedArrayFactory;
 
-    public function __construct(SerializerInterface $serializer, HttpClientInterface $client)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        HttpClientInterface $client,
+        KayaposoftModelWithUnnamedArrayFactory $kayaposoftModelWithUnnamedArrayFactory
+    ) {
         $this->serializer = $serializer;
         $this->client = $client;
+        $this->kayaposoftModelWithUnnamedArrayFactory = $kayaposoftModelWithUnnamedArrayFactory;
     }
 
-    public function request(AbstractKaiaposoftApiRequest $kayaposoftApiRequest) : KayaposoftApiModelInterface
+    public function request(AbstractKaiaposoftApiRequest $kayaposoftApiRequest): ?KayaposoftApiModelInterface
     {
-        $requestType = $kayaposoftApiRequest->getHttpRequestType();
         $responseClass = $kayaposoftApiRequest->getResponseClass();
-        $url = $kayaposoftApiRequest->getUrl();
 
-        $response = $this->client->request($requestType, $url)->getContent();
+        $deserializeToClass = $kayaposoftApiRequest->isObjectConvertableToArrayVariable()
+            ? $kayaposoftApiRequest->getArrayObjectClass()
+            : $responseClass;
 
-        dump($kayaposoftApiRequest);
-        dump($response);
-        return $this->serializer->deserialize($response, $responseClass, 'json');
+        $requestResponse = $this->client->request(
+            $kayaposoftApiRequest->getHttpRequestType(),
+            $kayaposoftApiRequest->getUrl()
+        )->getContent();
+
+        $deserialized = $this->serializer->deserialize($requestResponse, $deserializeToClass, 'json');
+
+        return $kayaposoftApiRequest->isObjectConvertableToArrayVariable()
+            ? $this->kayaposoftModelWithUnnamedArrayFactory->create($responseClass, $deserialized)
+            : $deserialized;
     }
 }

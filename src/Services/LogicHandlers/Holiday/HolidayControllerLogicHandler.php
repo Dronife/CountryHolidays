@@ -56,10 +56,11 @@ class HolidayControllerLogicHandler
          * @var HolidayDateRangeModel $holidays
          */
         $holidays = $this->apiClient->request(new HolidayForDateRangeRequest($holidayCheckDateModel));
+
         dump($holidays);
         $this->messageBus->dispatch(
             new CreateAndAssignHoliday(
-                $holidays,
+                $holidays->getFirst(),
                 $country
             )
         );
