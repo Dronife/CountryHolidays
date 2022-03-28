@@ -16,8 +16,8 @@ class HolidayForDateRangeRequest extends AbstractKaiaposoftApiRequest
         //TODO: Cia blogai, nes turi buti start ir end dates
         $date = $holidayRequestCheckDateModel->getDateByFormat(DateFormat::DATE_FORMAT_HOLIDAY_CHECK_DATE);
         $this->setResponseClass(HolidayDateRangeModel::class);
-        $this->setObjectConvertableToArrayVariable(true);
-        $this->setArrayObjectClass('array<'.HolidayModel::class.'>');
+        $this->setDeserializeArrayClassExists(true);
+        $this->setDeserializeArrayToClass('array<'.HolidayModel::class.'>');
         $this->setHttpRequestType('GET');
         $this->setUrl(
             sprintf(

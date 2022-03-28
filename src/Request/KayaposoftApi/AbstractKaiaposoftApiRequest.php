@@ -7,8 +7,8 @@ abstract class AbstractKaiaposoftApiRequest implements KayaposoftApiRequestInter
     private string $url;
     private string $httpRequestType;
     private string $responseClass;
-    private bool $objectConvertableToArrayVariable = false;
-    private string $arrayObjectClass = "";
+    private bool $deserializeArrayClassExists = false;
+    private string $deserializeArrayToClass = "";
 
     public function __construct()
     {
@@ -65,32 +65,32 @@ abstract class AbstractKaiaposoftApiRequest implements KayaposoftApiRequestInter
     /**
      * @return string
      */
-    public function getArrayObjectClass(): string
+    public function getDeserializeArrayToClass(): string
     {
-        return $this->arrayObjectClass;
+        return $this->deserializeArrayToClass;
     }
 
     /**
-     * @param string $arrayObjectClass
+     * @param string $deserializeArrayToClass
      */
-    public function setArrayObjectClass(string $arrayObjectClass): void
+    public function setDeserializeArrayToClass(string $deserializeArrayToClass): void
     {
-        $this->arrayObjectClass = $arrayObjectClass;
+        $this->deserializeArrayToClass = $deserializeArrayToClass;
     }
 
     /**
      * @return bool
      */
-    public function isObjectConvertableToArrayVariable(): bool
+    public function doesDeserializeArrayClassExists(): bool
     {
-        return $this->objectConvertableToArrayVariable;
+        return $this->deserializeArrayClassExists;
     }
 
     /**
-     * @param bool $objectConvertableToArrayVariable
+     * @param bool $deserializeArrayClassExists
      */
-    public function setObjectConvertableToArrayVariable(bool $objectConvertableToArrayVariable): void
+    public function setDeserializeArrayClassExists(bool $deserializeArrayClassExists): void
     {
-        $this->objectConvertableToArrayVariable = $objectConvertableToArrayVariable;
+        $this->deserializeArrayClassExists = $deserializeArrayClassExists;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Factory\Model\KayaposoftModelWithUnnamedArrayFactory;
+use App\Factory\Model\KayaposoftUnnamedArrayHolderFactory;
 use App\Model\Response\KayaposoftApi\AbstractArrayModel;
 use App\Model\Response\KayaposoftApi\KayaposoftApiModelInterface;
 use App\Request\KayaposoftApi\AbstractKaiaposoftApiRequest;
@@ -13,24 +13,24 @@ class ApiClient
 {
     private SerializerInterface $serializer;
     private HttpClientInterface $client;
-    private KayaposoftModelWithUnnamedArrayFactory $kayaposoftModelWithUnnamedArrayFactory;
+    private KayaposoftUnnamedArrayHolderFactory $kayaposoftUnnamedArrayHolderFactory;
 
     public function __construct(
         SerializerInterface $serializer,
         HttpClientInterface $client,
-        KayaposoftModelWithUnnamedArrayFactory $kayaposoftModelWithUnnamedArrayFactory
+        KayaposoftUnnamedArrayHolderFactory $kayaposoftUnnamedArrayHolderFactory
     ) {
         $this->serializer = $serializer;
         $this->client = $client;
-        $this->kayaposoftModelWithUnnamedArrayFactory = $kayaposoftModelWithUnnamedArrayFactory;
+        $this->kayaposoftUnnamedArrayHolderFactory = $kayaposoftUnnamedArrayHolderFactory;
     }
 
     public function request(AbstractKaiaposoftApiRequest $kayaposoftApiRequest): ?KayaposoftApiModelInterface
     {
         $responseClass = $kayaposoftApiRequest->getResponseClass();
 
-        $deserializeToClass = $kayaposoftApiRequest->isObjectConvertableToArrayVariable()
-            ? $kayaposoftApiRequest->getArrayObjectClass()
+        $deserializeToClass = $kayaposoftApiRequest->doesDeserializeArrayClassExists()
+            ? $kayaposoftApiRequest->getDeserializeArrayToClass()
             : $responseClass;
 
         $requestResponse = $this->client->request(
@@ -40,8 +40,8 @@ class ApiClient
 
         $deserialized = $this->serializer->deserialize($requestResponse, $deserializeToClass, 'json');
 
-        return $kayaposoftApiRequest->isObjectConvertableToArrayVariable()
-            ? $this->kayaposoftModelWithUnnamedArrayFactory->create($responseClass, $deserialized)
+        return $kayaposoftApiRequest->doesDeserializeArrayClassExists()
+            ? $this->kayaposoftUnnamedArrayHolderFactory->create($responseClass, $deserialized)
             : $deserialized;
     }
 }
